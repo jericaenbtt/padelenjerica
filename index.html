@@ -6,6 +6,9 @@
   <title>Torneo Pádel Jerica</title>
   <!-- Iconos de Bootstrap -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+  <!-- Librería Oficial de Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <style>
     :root {
       --primary-color: #0f52ba;
@@ -262,8 +265,6 @@
 
     <!-- PESTAÑA 2: JUGADORES -->
     <section id="tab-jugadores" class="tab-content">
-      
-      <!-- Banner informativo de Admin -->
       <div id="adminNotice" class="admin-banner" style="display: none;">
         <i class="bi bi-shield-check" style="font-size: 1.2rem;"></i>
         <span>Modo Administrador Activo. Puedes modificar los jugadores.</span>
@@ -289,7 +290,7 @@
           </div>
 
           <div class="form-group">
-            <label for="playerPhotoInput">Hacer Foto (Cámara del móvil / Galería)</label>
+            <label for="playerPhotoInput">Hacer Foto (Cámara / Galería)</label>
             <input type="file" id="playerPhotoInput" class="form-control" accept="image/*" capture="environment">
             <input type="hidden" id="playerPhotoData">
             <div id="photoPreview" style="margin-top: 8px; display: none;">
@@ -297,16 +298,16 @@
             </div>
           </div>
 
-          <button type="submit" class="btn btn-primary">Actualizar Datos</button>
+          <button type="submit" id="btnSave" class="btn btn-primary">Actualizar Datos</button>
           <button type="button" id="btnCancelEdit" class="btn btn-secondary">Cancelar</button>
         </form>
       </div>
 
-      <!-- Lista Pública de los 16 Jugadores -->
+      <!-- Lista Pública -->
       <div class="card">
         <h2>📋 Lista de Jugadores (16)</h2>
         <div id="playersList">
-          <!-- Carga dinámica -->
+          <p style="text-align: center; color: #888; padding: 10px;">Cargando lista desde la nube...</p>
         </div>
       </div>
 
@@ -322,8 +323,6 @@
 
     <!-- PESTAÑA 4: ADMIN / LOGIN -->
     <section id="tab-admin" class="tab-content">
-      
-      <!-- Si NO está logueado -->
       <div class="card" id="loginCard">
         <h2>🔒 Acceso Administrador</h2>
         <form id="loginForm">
@@ -335,14 +334,12 @@
         </form>
       </div>
 
-      <!-- Si YA está logueado -->
       <div class="card" id="loggedCard" style="display: none;">
         <h2>⚙️ Panel de Control</h2>
         <p>Has iniciado sesión correctamente como Administrador.</p>
-        <p style="font-size: 0.85rem; color: #666; margin-top: 8px;">Ve a la pestaña <strong>Jugadores</strong> para editar el nombre, equipo y fotos de los 16 participantes.</p>
+        <p style="font-size: 0.85rem; color: #666; margin-top: 8px;">Ve a la pestaña <strong>Jugadores</strong> para editar el nombre, equipo y fotos.</p>
         <button type="button" onclick="logoutAdmin()" class="btn btn-danger">Cerrar Sesión</button>
       </div>
-
     </section>
 
     <!-- PESTAÑA 5 -->
@@ -354,7 +351,7 @@
     </section>
   </main>
 
-  <!-- NAVEGACIÓN INFERIOR (5 Pestañas) -->
+  <!-- NAVEGACIÓN INFERIOR -->
   <nav class="bottom-nav">
     <button class="nav-item active" onclick="switchTab('tab-info', this)">
       <i class="bi bi-info-circle"></i>
@@ -379,29 +376,15 @@
   </nav>
 
   <script>
+    // --- CONEXIÓN CON SUPABASE ---
+const SUPABASE_URL = "https://juqzbczzhwgcmtmtbxcf.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_mS2bpHnkMdi1akpwcKvqCw_QePzMeSU";
+    const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
     const ADMIN_PASSWORD = "jerica"; 
     const defaultAvatar = "https://cdn-icons-png.flaticon.com/512/847/847969.png";
 
-    // Generador inicial de los 16 jugadores
-    function generateInitialPlayers() {
-      const initial = [];
-      for (let i = 1; i <= 16; i++) {
-        initial.push({
-          id: i.toString(),
-          name: `Jugador ${i}`,
-          team: i % 2 !== 0 ? "Equipo 1" : "Equipo 2",
-          photo: ""
-        });
-      }
-      return initial;
-    }
-
-    let players = JSON.parse(localStorage.getItem('padel_players'));
-    if (!players || players.length !== 16) {
-      players = generateInitialPlayers();
-      localStorage.setItem('padel_players', JSON.stringify(players));
-    }
-
+    let players = [];
     let isAdmin = localStorage.getItem('padel_admin_logged') === 'true';
     let editingId = null;
 
@@ -414,18 +397,17 @@
       btnElement.classList.add('active');
       window.scrollTo(0, 0);
 
-      renderPlayers();
+      if (tabId === 'tab-jugadores') fetchPlayers();
     }
 
-    // --- ACCESO Y LOGIN ---
+    // --- LOGIN ADMIN ---
     document.getElementById('loginForm').addEventListener('submit', (e) => {
       e.preventDefault();
-      const pass = document.getElementById('adminPass').value;
-      if (pass === ADMIN_PASSWORD) {
+      if (document.getElementById('adminPass').value === ADMIN_PASSWORD) {
         isAdmin = true;
         localStorage.setItem('padel_admin_logged', 'true');
         updateAdminUI();
-        alert("¡Acceso correcto! Ahora puedes modificar jugadores.");
+        alert("¡Acceso correcto!");
         document.getElementById('adminPass').value = '';
       } else {
         alert("Contraseña incorrecta.");
@@ -454,7 +436,7 @@
       }
     }
 
-    // --- COMPRESIÓN AUTOMÁTICA DE IMÁGENES ---
+    // --- COMPRESIÓN DE IMÁGENES ---
     const playerPhotoInput = document.getElementById('playerPhotoInput');
     const playerPhotoData = document.getElementById('playerPhotoData');
     const photoPreview = document.getElementById('photoPreview');
@@ -467,32 +449,22 @@
         reader.onload = function(evt) {
           const img = new Image();
           img.onload = function() {
-            // Redimensionar la imagen a máximo 300x300 px
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
-            const maxSize = 300;
-            let width = img.width;
-            let height = img.height;
+            const maxSize = 250;
+            let width = img.width, height = img.height;
 
             if (width > height) {
-              if (width > maxSize) {
-                height *= maxSize / width;
-                width = maxSize;
-              }
+              if (width > maxSize) { height *= maxSize / width; width = maxSize; }
             } else {
-              if (height > maxSize) {
-                width *= maxSize / height;
-                height = maxSize;
-              }
+              if (height > maxSize) { width *= maxSize / height; height = maxSize; }
             }
 
             canvas.width = width;
             canvas.height = height;
             ctx.drawImage(img, 0, 0, width, height);
 
-            // Convertir a JPEG comprimido (calidad 0.7)
-            const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.7);
-            
+            const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.6);
             playerPhotoData.value = compressedDataUrl;
             imgPreview.src = compressedDataUrl;
             photoPreview.style.display = 'block';
@@ -503,7 +475,39 @@
       }
     });
 
-    // --- RENDERIZADO Y EDICIÓN ---
+    // --- OBTENER JUGADORES DE LA NUBE ---
+    async function fetchPlayers() {
+      const { data, error } = await db.from('jugadores').select('*').order('id', { ascending: true });
+
+      if (error) {
+        console.error("Error al obtener jugadores:", error);
+        return;
+      }
+
+      // Si la base de datos está vacía, creamos los 16 jugadores iniciales en la nube
+      if (data.length === 0) {
+        await initCloudPlayers();
+      } else {
+        players = data;
+        renderPlayers();
+      }
+    }
+
+    async function initCloudPlayers() {
+      const initial = [];
+      for (let i = 1; i <= 16; i++) {
+        initial.push({
+          id: i,
+          name: `Jugador ${i}`,
+          team: i % 2 !== 0 ? "Equipo 1" : "Equipo 2",
+          photo: ""
+        });
+      }
+      await db.from('jugadores').insert(initial);
+      fetchPlayers();
+    }
+
+    // --- RENDERIZADO ---
     function renderPlayers() {
       const playersList = document.getElementById('playersList');
 
@@ -518,8 +522,8 @@
           </div>
           ${isAdmin ? `
             <div class="player-actions">
-              <button class="btn-icon btn-edit" onclick="editPlayer('${p.id}')" title="Editar"><i class="bi bi-pencil"></i></button>
-              <button class="btn-icon btn-delete" onclick="resetPlayer('${p.id}')" title="Restablecer"><i class="bi bi-trash"></i></button>
+              <button class="btn-icon btn-edit" onclick="editPlayer(${p.id})" title="Editar"><i class="bi bi-pencil"></i></button>
+              <button class="btn-icon btn-delete" onclick="resetPlayer(${p.id})" title="Restablecer"><i class="bi bi-trash"></i></button>
             </div>
           ` : ''}
         </div>
@@ -535,7 +539,7 @@
       document.getElementById('playerName').value = player.name;
       document.getElementById('playerTeam').value = player.team;
       playerPhotoData.value = player.photo || '';
-      playerPhotoInput.value = ''; // Limpia el selector de archivos
+      playerPhotoInput.value = '';
       
       if (player.photo) {
         imgPreview.src = player.photo;
@@ -548,17 +552,28 @@
       document.getElementById('cardPlayerForm').scrollIntoView({ behavior: 'smooth' });
     }
 
-    document.getElementById('playerForm').addEventListener('submit', (e) => {
+    // Guardar cambios directamente en Supabase
+    document.getElementById('playerForm').addEventListener('submit', async (e) => {
       e.preventDefault();
+      const btnSave = document.getElementById('btnSave');
+      btnSave.disabled = true;
+      btnSave.textContent = "Guardando en la nube...";
 
       const name = document.getElementById('playerName').value.trim();
       const team = document.getElementById('playerTeam').value;
       const photo = playerPhotoData.value;
 
-      players = players.map(p => p.id === editingId ? { ...p, name, team, photo } : p);
+      const { error } = await db.from('jugadores').update({ name, team, photo }).eq('id', editingId);
 
-      saveAndRefresh();
-      closeForm();
+      btnSave.disabled = false;
+      btnSave.textContent = "Actualizar Datos";
+
+      if (error) {
+        alert("Error al actualizar datos en la nube.");
+      } else {
+        closeForm();
+        fetchPlayers();
+      }
     });
 
     document.getElementById('btnCancelEdit').addEventListener('click', closeForm);
@@ -572,32 +587,22 @@
       document.getElementById('cardPlayerForm').style.display = 'none';
     }
 
-    function resetPlayer(id) {
-      if (confirm("¿Está seguro de Borrar este jugador? Se restablecerá su nombre original y foto.")) {
-        players = players.map(p => p.id === id ? {
-          id: p.id,
-          name: `Jugador ${p.id}`,
-          team: parseInt(p.id) % 2 !== 0 ? "Equipo 1" : "Equipo 2",
+    async function resetPlayer(id) {
+      if (confirm("¿Deseas restablecer este jugador a su nombre original?")) {
+        await db.from('jugadores').update({
+          name: `Jugador ${id}`,
+          team: id % 2 !== 0 ? "Equipo 1" : "Equipo 2",
           photo: ""
-        } : p);
+        }).eq('id', id);
 
         if (editingId === id) closeForm();
-        saveAndRefresh();
+        fetchPlayers();
       }
-    }
-
-    function saveAndRefresh() {
-      try {
-        localStorage.setItem('padel_players', JSON.stringify(players));
-      } catch (e) {
-        alert("Error al guardar: La imagen seleccionada aún es demasiado grande.");
-      }
-      renderPlayers();
     }
 
     // Inicialización
     updateAdminUI();
-    renderPlayers();
+    fetchPlayers();
   </script>
 </body>
 </html>
