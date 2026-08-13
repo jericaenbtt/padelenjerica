@@ -551,7 +551,7 @@ header {
 
     function toggleAdmin() {
       const pwd = prompt("Introduce la clave de Administrador:");
-      if (pwd === "1234") { // Clave por defecto
+      if (pwd === "Jerica77") { // Clave por defecto
         isAdmin = !isAdmin;
         document.getElementById('admin-status').innerText = isAdmin ? "Modo Administrador Activo" : "Modo Lectura";
         document.querySelectorAll('.admin-only').forEach(el => el.style.display = isAdmin ? 'table-cell' : 'none');
