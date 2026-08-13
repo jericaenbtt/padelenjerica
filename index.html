@@ -3,606 +3,798 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Torneo Pádel Jerica</title>
-  <!-- Iconos de Bootstrap -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-  <!-- Librería Oficial de Supabase -->
+  <title>Torneo de Pádel Jérica</title>
+  <!-- Supabase JS Client -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
   <style>
     :root {
-      --primary-color: #0f52ba;
-      --accent-color: #28a745;
-      --bg-color: #f4f6f9;
-      --card-bg: #ffffff;
-      --text-color: #333333;
-      --danger-color: #dc3545;
-      --nav-height: 65px;
+      --primary: #1b5e20;
+      --primary-light: #4c8c4a;
+      --secondary: #e8f5e9;
+      --accent: #ff9800;
+      --dark: #212121;
+      --light: #f5f5f5;
+      --white: #ffffff;
+      --danger: #d32f2f;
+      --team1-bg: #e3f2fd;
+      --team1-border: #1976d2;
+      --team2-bg: #fff3e0;
+      --team2-border: #f57c00;
     }
 
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
 
     body {
-      background-color: var(--bg-color);
-      color: var(--text-color);
-      padding-bottom: calc(var(--nav-height) + 20px);
+      background-color: var(--light);
+      color: var(--dark);
+      padding-bottom: 70px;
     }
 
     header {
-      background-color: #ffffff;
+      background-color: var(--primary);
+      color: var(--white);
       text-align: center;
-      padding: 8px 10px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      padding: 15px 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
       position: sticky;
       top: 0;
       z-index: 100;
     }
 
-    .header-banner {
-      max-width: 100%;
-      height: auto;
-      max-height: 80px;
-      display: block;
-      margin: 0 auto;
-      object-fit: contain;
+    header h1 {
+      font-size: 1.4rem;
+      margin-bottom: 5px;
     }
 
-    main {
-      padding: 15px;
-      max-width: 600px;
-      margin: 0 auto;
+    .admin-bar {
+      background-color: #333;
+      color: white;
+      padding: 6px 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.85rem;
+    }
+
+    .admin-btn {
+      background-color: var(--accent);
+      border: none;
+      color: white;
+      padding: 4px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background-color: var(--white);
+      display: flex;
+      box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+      z-index: 1000;
+    }
+
+    .nav-item {
+      flex: 1;
+      text-align: center;
+      padding: 10px 5px;
+      color: #666;
+      text-decoration: none;
+      font-size: 0.75rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+      border: none;
+      background: none;
+    }
+
+    .nav-item.active {
+      color: var(--primary);
+      font-weight: bold;
+      border-top: 3px solid var(--primary);
+    }
+
+    .nav-icon {
+      font-size: 1.2rem;
+      margin-bottom: 2px;
     }
 
     .tab-content {
       display: none;
+      padding: 15px;
+      max-width: 900px;
+      margin: 0 auto;
     }
 
     .tab-content.active {
       display: block;
     }
 
+    /* CARDS & TABLES */
     .card {
-      background: var(--card-bg);
-      border-radius: 12px;
-      padding: 16px;
+      background-color: var(--white);
+      border-radius: 8px;
+      padding: 15px;
       margin-bottom: 15px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     }
 
     .card h2 {
-      font-size: 1.1rem;
-      margin-bottom: 12px;
-      color: var(--primary-color);
-      border-bottom: 2px solid var(--bg-color);
-      padding-bottom: 6px;
+      color: var(--primary);
+      font-size: 1.2rem;
+      margin-bottom: 10px;
+      border-bottom: 2px solid var(--secondary);
+      padding-bottom: 5px;
     }
 
-    /* Navegación Inferior */
-    .bottom-nav {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      height: var(--nav-height);
-      background-color: #ffffff;
-      display: flex;
-      justify-content: space-around;
-      align-items: center;
-      border-top: 1px solid #e0e0e0;
-      box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
-      z-index: 1000;
+    /* TABLA JUGADORES */
+    .grid-jugadores {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 10px;
     }
 
-    .nav-item {
+    .jugador-card {
+      background-color: var(--white);
+      border-radius: 8px;
+      padding: 10px;
+      text-align: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+      border-left: 4px solid #ccc;
+    }
+
+    .jugador-card.equipo1 { border-left-color: var(--team1-border); }
+    .jugador-card.equipo2 { border-left-color: var(--team2-border); }
+
+    .jugador-img {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin: 0 auto 8px auto;
+      border: 2px solid #ddd;
+    }
+
+    .jugador-nombre {
+      font-weight: bold;
+      font-size: 0.95rem;
+      margin-bottom: 3px;
+    }
+
+    .jugador-equipo {
+      font-size: 0.75rem;
+      color: #666;
+    }
+
+    /* CALENDARIO & PARTIDOS */
+    .tabla-partidos {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--white);
+      font-size: 0.85rem;
+      margin-top: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+
+    .tabla-partidos th {
+      background-color: var(--primary);
+      color: white;
+      padding: 8px 4px;
+      text-align: center;
+      font-size: 0.8rem;
+    }
+
+    .tabla-partidos td {
+      padding: 6px 4px;
+      border-bottom: 1px solid #eee;
+      text-align: center;
+      vertical-align: middle;
+    }
+
+    .pareja-box {
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      color: #666;
-      text-decoration: none;
-      font-size: 0.75rem;
-      width: 20%;
-      height: 100%;
-      background: none;
-      border: none;
-      cursor: pointer;
+      gap: 2px;
     }
 
-    .nav-item i {
-      font-size: 1.3rem;
-      margin-bottom: 2px;
-    }
-
-    .nav-item.active {
-      color: var(--primary-color);
-      font-weight: bold;
-    }
-
-    /* Formularios */
-    .form-group {
-      margin-bottom: 12px;
-    }
-
-    .form-group label {
-      display: block;
-      font-size: 0.85rem;
-      font-weight: 600;
-      margin-bottom: 4px;
-    }
-
-    .form-control {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      font-size: 0.95rem;
-    }
-
-    .btn {
-      width: 100%;
-      padding: 12px;
-      border: none;
-      border-radius: 6px;
-      font-weight: bold;
-      font-size: 0.95rem;
-      cursor: pointer;
-    }
-
-    .btn-primary { background-color: var(--primary-color); color: white; }
-    .btn-secondary { background-color: #6c757d; color: white; margin-top: 6px; }
-    .btn-danger { background-color: var(--danger-color); color: white; margin-top: 10px; }
-
-    /* Lista de Jugadores */
-    .player-item {
-      display: flex;
+    .jugador-tag {
+      display: inline-flex;
       align-items: center;
+      gap: 4px;
+      font-size: 0.78rem;
+      background-color: #f0f0f0;
+      padding: 2px 6px;
+      border-radius: 12px;
+      white-space: nowrap;
+    }
+
+    .jugador-tag img {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+    }
+
+    .res-input {
+      width: 35px;
+      text-align: center;
+      padding: 4px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-weight: bold;
+      font-size: 0.9rem;
+    }
+
+    /* CLASIFICACIONES */
+    .clasificacion-header {
+      display: flex;
       justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .equipo-resumen {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .equipo-box {
+      flex: 1;
+      padding: 15px;
+      border-radius: 8px;
+      text-align: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    .equipo-box.eq1 {
+      background-color: var(--team1-bg);
+      border: 2px solid var(--team1-border);
+    }
+
+    .equipo-box.eq2 {
+      background-color: var(--team2-bg);
+      border: 2px solid var(--team2-border);
+    }
+
+    .equipo-box h3 {
+      font-size: 1rem;
+      margin-bottom: 5px;
+    }
+
+    .equipo-box .puntos {
+      font-size: 1.8rem;
+      font-weight: bold;
+    }
+
+    .ranking-tabla {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    .ranking-tabla th {
+      background-color: var(--secondary);
+      color: var(--primary);
       padding: 10px;
+      text-align: left;
+    }
+
+    .ranking-tabla td {
+      padding: 8px 10px;
       border-bottom: 1px solid #eee;
     }
 
-    .player-item:last-child {
-      border-bottom: none;
-    }
-
-    .player-info {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .player-avatar {
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
-      object-fit: cover;
-      background-color: #e0e0e0;
-    }
-
-    .player-name {
-      font-weight: 600;
-      font-size: 0.95rem;
-    }
-
-    .badge-team {
-      font-size: 0.75rem;
-      padding: 3px 8px;
-      border-radius: 12px;
-      color: white;
+    .posicion {
       font-weight: bold;
-      display: inline-block;
-      margin-top: 2px;
+      width: 30px;
+      text-align: center;
     }
 
-    .badge-equipo1 { background-color: #007bff; }
-    .badge-equipo2 { background-color: #fd7e14; }
-
-    .player-actions {
-      display: flex;
-      gap: 6px;
-    }
-
-    .btn-icon {
-      background: none;
-      border: none;
-      font-size: 1.1rem;
-      padding: 6px;
-      cursor: pointer;
-      border-radius: 4px;
-    }
-
-    .btn-edit { color: var(--primary-color); }
-    .btn-delete { color: var(--danger-color); }
-
-    .admin-banner {
-      background: #e6fffa;
-      border: 1px solid #38b2ac;
-      color: #234e52;
-      padding: 10px;
-      border-radius: 8px;
-      margin-bottom: 12px;
-      font-size: 0.85rem;
-      display: flex;
+    /* MODAL EDICION */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 2000;
+      justify-content: center;
       align-items: center;
-      gap: 8px;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      width: 90%;
+      max-width: 400px;
+    }
+
+    .btn {
+      padding: 8px 15px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-secondary { background: #888; color: white; }
+    .btn-danger { background: var(--danger); color: white; }
+
+    .loading-spinner {
+      text-align: center;
+      padding: 20px;
+      color: #666;
     }
   </style>
 </head>
 <body>
 
   <header>
-    <img src="banner.png" alt="Pádel Jérica" class="header-banner" onerror="this.outerHTML='<h1>Pádel Jérica</h1>'">
+    <h1>Torneo de Pádel Jérica</h1>
+    <div id="status-cloud" style="font-size:0.75rem; opacity:0.8;">☁️ Conectado a la nube</div>
   </header>
 
-  <main>
-    <!-- PESTAÑA 1: INFORMACIÓN -->
-    <section id="tab-info" class="tab-content active">
-      <div class="card">
-        <h2>ℹ️ Información del Torneo</h2>
-        <p>Bienvenido al torneo oficial de pádel de Jérica.</p>
-      </div>
-
-      <div class="card">
-        <h2>📅 Fechas y Horarios</h2>
-        <p><strong>Fecha de inicio:</strong> Próximamente</p>
-        <p><strong>Ubicación:</strong> Pistas Municipales de Jérica</p>
-      </div>
-
-      <div class="card">
-        <h2>📜 Normativa General</h2>
-        <ul style="padding-left: 20px; font-size: 0.9rem; line-height: 1.5;">
-          <li>Los partidos se jugarán al mejor de 3 sets.</li>
-          <li>Punto de oro en todos los juegos.</li>
-          <li>Se ruega puntualidad de 10 minutos antes del partido.</li>
-        </ul>
-      </div>
-    </section>
-
-    <!-- PESTAÑA 2: JUGADORES -->
-    <section id="tab-jugadores" class="tab-content">
-      <div id="adminNotice" class="admin-banner" style="display: none;">
-        <i class="bi bi-shield-check" style="font-size: 1.2rem;"></i>
-        <span>Modo Administrador Activo. Puedes modificar los jugadores.</span>
-      </div>
-
-      <!-- Formulario de Edición -->
-      <div class="card" id="cardPlayerForm" style="display: none;">
-        <h2>✏️ Modificar Jugador</h2>
-        <form id="playerForm">
-          <input type="hidden" id="playerId">
-          
-          <div class="form-group">
-            <label for="playerName">Nombre del Jugador</label>
-            <input type="text" id="playerName" class="form-control" placeholder="Ej. Juan Pérez" required>
-          </div>
-
-          <div class="form-group">
-            <label for="playerTeam">Equipo</label>
-            <select id="playerTeam" class="form-control" required>
-              <option value="Equipo 1">Equipo 1</option>
-              <option value="Equipo 2">Equipo 2</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label for="playerPhotoInput">Hacer Foto (Cámara / Galería)</label>
-            <input type="file" id="playerPhotoInput" class="form-control" accept="image/*" capture="environment">
-            <input type="hidden" id="playerPhotoData">
-            <div id="photoPreview" style="margin-top: 8px; display: none;">
-              <img id="imgPreview" src="" style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover;">
-            </div>
-          </div>
-
-          <button type="submit" id="btnSave" class="btn btn-primary">Actualizar Datos</button>
-          <button type="button" id="btnCancelEdit" class="btn btn-secondary">Cancelar</button>
-        </form>
-      </div>
-
-      <!-- Lista Pública -->
-      <div class="card">
-        <h2>📋 Lista de Jugadores (16)</h2>
-        <div id="playersList">
-          <p style="text-align: center; color: #888; padding: 10px;">Cargando lista desde la nube...</p>
-        </div>
-      </div>
-
-    </section>
-
-    <!-- PESTAÑA 3 -->
-    <section id="tab-pestana3" class="tab-content">
-      <div class="card">
-        <h2>🏆 Partidos / Resultados</h2>
-        <p>Próximamente disponible.</p>
-      </div>
-    </section>
-
-    <!-- PESTAÑA 4: ADMIN / LOGIN -->
-    <section id="tab-admin" class="tab-content">
-      <div class="card" id="loginCard">
-        <h2>🔒 Acceso Administrador</h2>
-        <form id="loginForm">
-          <div class="form-group">
-            <label for="adminPass">Contraseña de Administrador</label>
-            <input type="password" id="adminPass" class="form-control" placeholder="Introduce la contraseña" required>
-          </div>
-          <button type="submit" class="btn btn-primary">Entrar</button>
-        </form>
-      </div>
-
-      <div class="card" id="loggedCard" style="display: none;">
-        <h2>⚙️ Panel de Control</h2>
-        <p>Has iniciado sesión correctamente como Administrador.</p>
-        <p style="font-size: 0.85rem; color: #666; margin-top: 8px;">Ve a la pestaña <strong>Jugadores</strong> para editar el nombre, equipo y fotos.</p>
-        <button type="button" onclick="logoutAdmin()" class="btn btn-danger">Cerrar Sesión</button>
-      </div>
-    </section>
-
-    <!-- PESTAÑA 5 -->
-    <section id="tab-pestana5" class="tab-content">
-      <div class="card">
-        <h2>⚙️ Ajustes</h2>
-        <p>Configuración general.</p>
-      </div>
-    </section>
-  </main>
+  <div class="admin-bar">
+    <span id="admin-status">Modo Lectura</span>
+    <button class="admin-btn" onclick="toggleAdmin()">Entrar Admin</button>
+  </div>
 
   <!-- NAVEGACIÓN INFERIOR -->
-  <nav class="bottom-nav">
-    <button class="nav-item active" onclick="switchTab('tab-info', this)">
-      <i class="bi bi-info-circle"></i>
+  <nav>
+    <button class="nav-item active" onclick="showTab('info')">
+      <span class="nav-icon">ℹ️</span>
       <span>Info</span>
     </button>
-    <button class="nav-item" onclick="switchTab('tab-jugadores', this)">
-      <i class="bi bi-people"></i>
+    <button class="nav-item" onclick="showTab('jugadores')">
+      <span class="nav-icon">👥</span>
       <span>Jugadores</span>
     </button>
-    <button class="nav-item" onclick="switchTab('tab-pestana3', this)">
-      <i class="bi bi-trophy"></i>
-      <span>Partidos</span>
+    <button class="nav-item" onclick="showTab('calendario')">
+      <span class="nav-icon">📅</span>
+      <span>Calendario</span>
     </button>
-    <button class="nav-item" onclick="switchTab('tab-admin', this)">
-      <i class="bi bi-shield-lock"></i>
-      <span>Admin</span>
-    </button>
-    <button class="nav-item" onclick="switchTab('tab-pestana5', this)">
-      <i class="bi bi-gear"></i>
-      <span>Ajustes</span>
+    <button class="nav-item" onclick="showTab('clasificaciones')">
+      <span class="nav-icon">🏆</span>
+      <span>Clasificación</span>
     </button>
   </nav>
 
+  <!-- PESTAÑA INFO -->
+  <div id="tab-info" class="tab-content active">
+    <div class="card">
+      <h2>Información del Torneo</h2>
+      <p>Bienvenido a la web oficial del Torneo de Pádel de Jérica.</p>
+      <br>
+      <ul style="margin-left: 20px; font-size: 0.9rem;">
+        <li><strong>Formato:</strong> 16 Jugadores divididos en 2 Equipos.</li>
+        <li><strong>Rondas 1 a 14:</strong> Fase regular. Cada juego vale 1 punto individual y 0.5 puntos de equipo.</li>
+        <li><strong>Rondas 15 y 16:</strong> Fase Final (Play-Offs). Cada juego vale 1 punto individual y 2 puntos de equipo.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- PESTAÑA JUGADORES -->
+  <div id="tab-jugadores" class="tab-content">
+    <div class="card">
+      <h2>Lista de Jugadores</h2>
+      <div id="jugadores-container" class="grid-jugadores">
+        <div class="loading-spinner">Cargando jugadores desde la nube...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PESTAÑA CALENDARIO / RESULTADOS -->
+  <div id="tab-calendario" class="tab-content">
+    <div class="card" style="padding: 10px 5px;">
+      <h2>Calendario de Partidos</h2>
+      <div style="overflow-x: auto;">
+        <table class="tabla-partidos">
+          <thead>
+            <tr>
+              <th>Turno</th>
+              <th>Pista 1</th>
+              <th>Res. 1</th>
+              <th>Pista 2</th>
+              <th>Res. 2</th>
+              <th class="admin-only" style="display:none;">Acción</th>
+            </tr>
+          </thead>
+          <tbody id="tabla-partidos-body">
+            <tr><td colspan="6" class="loading-spinner">Cargando calendario...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- PESTAÑA CLASIFICACIONES -->
+  <div id="tab-clasificaciones" class="tab-content">
+    <div class="card">
+      <h2>Clasificación Principal por Equipos</h2>
+      <div class="equipo-resumen">
+        <div class="equipo-box eq1">
+          <h3>Equipo 1</h3>
+          <div class="puntos" id="puntos-eq1">0</div>
+          <small>Juegos Totales</small>
+        </div>
+        <div class="equipo-box eq2">
+          <h3>Equipo 2</h3>
+          <div class="puntos" id="puntos-eq2">0</div>
+          <small>Juegos Totales</small>
+        </div>
+      </div>
+
+      <h2>Clasificación Individual (Jugadores)</h2>
+      <table class="ranking-tabla">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Jugador</th>
+            <th>Equipo</th>
+            <th>Puntos</th>
+          </tr>
+        </thead>
+        <tbody id="ranking-body">
+          <tr><td colspan="4" class="loading-spinner">Calculando clasificación...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- MODAL PARA INGRESAR DATOS ADMIN -->
+  <div id="modal-partido" class="modal">
+    <div class="modal-content">
+      <h3 id="modal-titulo">Editar Resultado</h3>
+      <br>
+      <form id="form-partido" onsubmit="guardarResultado(event)">
+        <input type="hidden" id="modal-partido-id">
+        <input type="hidden" id="modal-turno">
+        <input type="hidden" id="modal-pista">
+
+        <div style="margin-bottom: 15px;">
+          <label><strong id="lbl-pareja1">Pareja 1:</strong></label>
+          <input type="number" id="res-pareja1" min="0" max="15" class="res-input" style="width:100%; margin-top:5px;" required>
+        </div>
+
+        <div style="margin-bottom: 15px;">
+          <label><strong id="lbl-pareja2">Pareja 2:</strong></label>
+          <input type="number" id="res-pareja2" min="0" max="15" class="res-input" style="width:100%; margin-top:5px;" required>
+        </div>
+
+        <div style="display:flex; justify-content: space-between; margin-top:20px;">
+          <button type="button" class="btn btn-secondary" onclick="cerrarModal()">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Guardar Resultado</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <script>
     // --- CONEXIÓN CON SUPABASE ---
-const SUPABASE_URL = "https://juqzbczzhwgcmtmtbxcf.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_mS2bpHnkMdi1akpwcKvqCw_QePzMeSU";
+    const SUPABASE_URL = "https://juqzbczzhwgcmtmtbxcf.supabase.co";
+    const SUPABASE_ANON_KEY = "PEGA_AQUÍ_TU_CLAVE_ANON_PUBLIC";
     const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    const ADMIN_PASSWORD = "jerica"; 
-    const defaultAvatar = "https://cdn-icons-png.flaticon.com/512/847/847969.png";
+    // --- VARIABLES DE ESTADO ---
+    let isAdmin = false;
+    let jugadoresData = [];
+    let partidosData = [];
 
-    let players = [];
-    let isAdmin = localStorage.getItem('padel_admin_logged') === 'true';
-    let editingId = null;
+    // --- CUADRANTE FIJO BASE (TURNOS 1 AL 14) ---
+    const CUADRANTE_BASE = [
+      { turno: 1, p1: [5,6,13,14], p2: [7,8,15,16] },
+      { turno: 2, p1: [1,2,9,10], p2: [3,4,11,12] },
+      { turno: 3, p1: [1,3,9,11], p2: [5,7,13,15] },
+      { turno: 4, p1: [2,4,10,12], p2: [6,8,14,16] },
+      { turno: 5, p1: [1,4,9,12], p2: [2,3,10,11] },
+      { turno: 6, p1: [5,8,13,16], p2: [6,7,14,15] },
+      { turno: 7, p1: [1,5,9,13], p2: [2,6,10,14] },
+      { turno: 8, p1: [3,7,11,15], p2: [4,8,12,16] },
+      { turno: 9, p1: [1,6,9,14], p2: [2,5,10,13] },
+      { turno: 10, p1: [3,8,11,16], p2: [4,7,12,15] },
+      { turno: 11, p1: [1,7,9,15], p2: [3,5,11,13] },
+      { turno: 12, p1: [2,8,10,16], p2: [4,6,12,14] },
+      { turno: 13, p1: [1,8,9,16], p2: [2,7,10,15] },
+      { turno: 14, p1: [3,6,11,14], p2: [4,5,12,13] }
+    ];
+
+    // --- INICIALIZACIÓN ---
+    window.addEventListener('DOMContentLoaded', () => {
+      cargarDatosSupabase();
+    });
+
+    async function cargarDatosSupabase() {
+      try {
+        // 1. Cargar Jugadores
+        const { data: jData, error: jErr } = await db.from('jugadores').select('*').order('id', { ascending: true });
+        if (jErr) throw jErr;
+        jugadoresData = jData || [];
+
+        // 2. Cargar Partidos
+        const { data: pData, error: pErr } = await db.from('partidos').select('*');
+        if (pErr) throw pErr;
+        partidosData = pData || [];
+
+        renderJugadores();
+        renderCalendario();
+        calcularClasificacion();
+      } catch (error) {
+        console.error('Error cargando datos de Supabase:', error);
+        alert('Error conectando con la nube. Revisa la consola o tu clave API.');
+      }
+    }
 
     // --- NAVEGACIÓN ---
-    function switchTab(tabId, btnElement) {
-      document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-      document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
-
-      document.getElementById(tabId).classList.add('active');
-      btnElement.classList.add('active');
-      window.scrollTo(0, 0);
-
-      if (tabId === 'tab-jugadores') fetchPlayers();
-    }
-
-    // --- LOGIN ADMIN ---
-    document.getElementById('loginForm').addEventListener('submit', (e) => {
-      e.preventDefault();
-      if (document.getElementById('adminPass').value === ADMIN_PASSWORD) {
-        isAdmin = true;
-        localStorage.setItem('padel_admin_logged', 'true');
-        updateAdminUI();
-        alert("¡Acceso correcto!");
-        document.getElementById('adminPass').value = '';
-      } else {
-        alert("Contraseña incorrecta.");
-      }
-    });
-
-    function logoutAdmin() {
-      isAdmin = false;
-      localStorage.removeItem('padel_admin_logged');
-      closeForm();
-      updateAdminUI();
-      renderPlayers();
-      alert("Sesión cerrada.");
-    }
-
-    function updateAdminUI() {
-      if (isAdmin) {
-        document.getElementById('loginCard').style.display = 'none';
-        document.getElementById('loggedCard').style.display = 'block';
-        document.getElementById('adminNotice').style.display = 'flex';
-      } else {
-        document.getElementById('loginCard').style.display = 'block';
-        document.getElementById('loggedCard').style.display = 'none';
-        document.getElementById('adminNotice').style.display = 'none';
-        document.getElementById('cardPlayerForm').style.display = 'none';
-      }
-    }
-
-    // --- COMPRESIÓN DE IMÁGENES ---
-    const playerPhotoInput = document.getElementById('playerPhotoInput');
-    const playerPhotoData = document.getElementById('playerPhotoData');
-    const photoPreview = document.getElementById('photoPreview');
-    const imgPreview = document.getElementById('imgPreview');
-
-    playerPhotoInput.addEventListener('change', function(e) {
-      const file = e.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = function(evt) {
-          const img = new Image();
-          img.onload = function() {
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            const maxSize = 250;
-            let width = img.width, height = img.height;
-
-            if (width > height) {
-              if (width > maxSize) { height *= maxSize / width; width = maxSize; }
-            } else {
-              if (height > maxSize) { width *= maxSize / height; height = maxSize; }
-            }
-
-            canvas.width = width;
-            canvas.height = height;
-            ctx.drawImage(img, 0, 0, width, height);
-
-            const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.6);
-            playerPhotoData.value = compressedDataUrl;
-            imgPreview.src = compressedDataUrl;
-            photoPreview.style.display = 'block';
-          };
-          img.src = evt.target.result;
-        };
-        reader.readAsDataURL(file);
-      }
-    });
-
-    // --- OBTENER JUGADORES DE LA NUBE ---
-    async function fetchPlayers() {
-      const { data, error } = await db.from('jugadores').select('*').order('id', { ascending: true });
-
-      if (error) {
-        console.error("Error al obtener jugadores:", error);
-        return;
-      }
-
-      // Si la base de datos está vacía, creamos los 16 jugadores iniciales en la nube
-      if (data.length === 0) {
-        await initCloudPlayers();
-      } else {
-        players = data;
-        renderPlayers();
-      }
-    }
-
-    async function initCloudPlayers() {
-      const initial = [];
-      for (let i = 1; i <= 16; i++) {
-        initial.push({
-          id: i,
-          name: `Jugador ${i}`,
-          team: i % 2 !== 0 ? "Equipo 1" : "Equipo 2",
-          photo: ""
-        });
-      }
-      await db.from('jugadores').insert(initial);
-      fetchPlayers();
-    }
-
-    // --- RENDERIZADO ---
-    function renderPlayers() {
-      const playersList = document.getElementById('playersList');
-
-      playersList.innerHTML = players.map(p => `
-        <div class="player-item">
-          <div class="player-info">
-            <img src="${p.photo || defaultAvatar}" class="player-avatar" alt="${p.name}" onerror="this.src='${defaultAvatar}'">
-            <div>
-              <div class="player-name">${p.name}</div>
-              <span class="badge-team ${p.team === 'Equipo 1' ? 'badge-equipo1' : 'badge-equipo2'}">${p.team}</span>
-            </div>
-          </div>
-          ${isAdmin ? `
-            <div class="player-actions">
-              <button class="btn-icon btn-edit" onclick="editPlayer(${p.id})" title="Editar"><i class="bi bi-pencil"></i></button>
-              <button class="btn-icon btn-delete" onclick="resetPlayer(${p.id})" title="Restablecer"><i class="bi bi-trash"></i></button>
-            </div>
-          ` : ''}
-        </div>
-      `).join('');
-    }
-
-    function editPlayer(id) {
-      const player = players.find(p => p.id === id);
-      if (!player) return;
-
-      editingId = id;
-      document.getElementById('playerId').value = player.id;
-      document.getElementById('playerName').value = player.name;
-      document.getElementById('playerTeam').value = player.team;
-      playerPhotoData.value = player.photo || '';
-      playerPhotoInput.value = '';
+    function showTab(tabName) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
       
-      if (player.photo) {
-        imgPreview.src = player.photo;
-        photoPreview.style.display = 'block';
-      } else {
-        photoPreview.style.display = 'none';
-      }
-
-      document.getElementById('cardPlayerForm').style.display = 'block';
-      document.getElementById('cardPlayerForm').scrollIntoView({ behavior: 'smooth' });
+      document.getElementById(`tab-${tabName}`).classList.add('active');
+      event.currentTarget.classList.add('active');
     }
 
-    // Guardar cambios directamente en Supabase
-    document.getElementById('playerForm').addEventListener('submit', async (e) => {
+    function toggleAdmin() {
+      const pwd = prompt("Introduce la clave de Administrador:");
+      if (pwd === "1234") { // Clave por defecto
+        isAdmin = !isAdmin;
+        document.getElementById('admin-status').innerText = isAdmin ? "Modo Administrador Activo" : "Modo Lectura";
+        document.querySelectorAll('.admin-only').forEach(el => el.style.display = isAdmin ? 'table-cell' : 'none');
+        renderCalendario();
+      } else {
+        alert("Clave incorrecta.");
+      }
+    }
+
+    // --- RENDER JUGADORES ---
+    function renderJugadores() {
+      const container = document.getElementById('jugadores-container');
+      container.innerHTML = '';
+
+      jugadoresData.forEach(j => {
+        const eqClass = j.team === 'Equipo 1' ? 'equipo1' : 'equipo2';
+        const photoSrc = j.photo || 'https://via.placeholder.com/70?text=Padel';
+
+        container.innerHTML += `
+          <div class="jugador-card ${eqClass}">
+            <img src="${photoSrc}" class="jugador-img" alt="${j.name}">
+            <div class="jugador-nombre">${j.name}</div>
+            <div class="jugador-equipo">${j.team}</div>
+          </div>
+        `;
+      });
+    }
+
+    // --- RENDER CALENDARIO ---
+    function renderCalendario() {
+      const tbody = document.getElementById('tabla-partidos-body');
+      tbody.innerHTML = '';
+
+      // Obtener ranking para turnos 15 y 16
+      const ranking = obtenerRankingActual();
+
+      for (let t = 1; t <= 16; t++) {
+        let p1_j1, p1_j2, p1_j3, p1_j4;
+        let p2_j1, p2_j2, p2_j3, p2_j4;
+
+        if (t <= 14) {
+          const base = CUADRANTE_BASE.find(c => c.turno === t);
+          p1_j1 = base.p1[0]; p1_j2 = base.p1[1]; p1_j3 = base.p1[2]; p1_j4 = base.p1[3];
+          p2_j1 = base.p2[0]; p2_j2 = base.p2[1]; p2_j3 = base.p2[2]; p2_j4 = base.p2[3];
+        } else if (t === 15) {
+          // Turno 15: n1&n2 vs n1&n2 en pista 1 | n5&n6 vs n5&n6 en pista 2
+          p1_j1 = ranking.eq1[0]?.id; p1_j2 = ranking.eq1[1]?.id;
+          p1_j3 = ranking.eq2[0]?.id; p1_j4 = ranking.eq2[1]?.id;
+
+          p2_j1 = ranking.eq1[4]?.id; p2_j2 = ranking.eq1[5]?.id;
+          p2_j3 = ranking.eq2[4]?.id; p2_j4 = ranking.eq2[5]?.id;
+        } else if (t === 16) {
+          // Turno 16: n3&n4 vs n3&n4 en pista 1 | n7&n8 vs n7&n8 en pista 2
+          p1_j1 = ranking.eq1[2]?.id; p1_j2 = ranking.eq1[3]?.id;
+          p1_j3 = ranking.eq2[2]?.id; p1_j4 = ranking.eq2[3]?.id;
+
+          p2_j1 = ranking.eq1[6]?.id; p2_j2 = ranking.eq1[7]?.id;
+          p2_j3 = ranking.eq2[6]?.id; p2_j4 = ranking.eq2[7]?.id;
+        }
+
+        const partidaP1 = partidosData.find(p => p.turno === t && p.pista === 1);
+        const partidaP2 = partidosData.find(p => p.turno === t && p.pista === 2);
+
+        const res1 = partidaP1 && partidaP1.juegos_pareja1 !== null ? `${partidaP1.juegos_pareja1} - ${partidaP1.juegos_pareja2}` : '-';
+        const res2 = partidaP2 && partidaP2.juegos_pareja1 !== null ? `${partidaP2.juegos_pareja1} - ${partidaP2.juegos_pareja2}` : '-';
+
+        tbody.innerHTML += `
+          <tr>
+            <td><strong>T${t}</strong></td>
+            <td>
+              <div class="pareja-box">
+                <div>${getJugadorTag(p1_j1)} & ${getJugadorTag(p1_j2)}</div>
+                <small>vs</small>
+                <div>${getJugadorTag(p1_j3)} & ${getJugadorTag(p1_j4)}</div>
+              </div>
+            </td>
+            <td><strong>${res1}</strong></td>
+            <td>
+              <div class="pareja-box">
+                <div>${getJugadorTag(p2_j1)} & ${getJugadorTag(p2_j2)}</div>
+                <small>vs</small>
+                <div>${getJugadorTag(p2_j3)} & ${getJugadorTag(p2_j4)}</div>
+              </div>
+            </td>
+            <td><strong>${res2}</strong></td>
+            <td class="admin-only" style="display:${isAdmin ? 'table-cell' : 'none'};">
+              <button class="btn btn-primary" style="padding:2px 5px; font-size:0.7rem;" onclick="abrirModal(${t}, 1, [${p1_j1},${p1_j2},${p1_j3},${p1_j4}])">✏️ P1</button>
+              <button class="btn btn-primary" style="padding:2px 5px; font-size:0.7rem;" onclick="abrirModal(${t}, 2, [${p2_j1},${p2_j2},${p2_j3},${p2_j4}])">✏️ P2</button>
+            </td>
+          </tr>
+        `;
+      }
+    }
+
+    function getJugadorTag(id) {
+      if (!id) return '<span class="jugador-tag">?</span>';
+      const j = jugadoresData.find(item => item.id == id);
+      if (!j) return `<span class="jugador-tag">Jugador ${id}</span>`;
+
+      return `
+        <span class="jugador-tag">
+          <img src="${j.photo || 'https://via.placeholder.com/18'}" alt="">
+          ${j.name}
+        </span>
+      `;
+    }
+
+    // --- CÁLCULO DE CLASIFICACIONES ---
+    function obtenerRankingActual() {
+      let stats = {};
+      jugadoresData.forEach(j => {
+        stats[j.id] = { id: j.id, name: j.name, team: j.team, photo: j.photo, puntos: 0 };
+      });
+
+      partidosData.forEach(p => {
+        if (p.juegos_pareja1 !== null && p.juegos_pareja2 !== null) {
+          if (p.jugador1_id && stats[p.jugador1_id]) stats[p.jugador1_id].puntos += p.juegos_pareja1;
+          if (p.jugador2_id && stats[p.jugador2_id]) stats[p.jugador2_id].puntos += p.juegos_pareja1;
+          if (p.jugador3_id && stats[p.jugador3_id]) stats[p.jugador3_id].puntos += p.juegos_pareja2;
+          if (p.jugador4_id && stats[p.jugador4_id]) stats[p.jugador4_id].puntos += p.juegos_pareja2;
+        }
+      });
+
+      const arrStats = Object.values(stats);
+
+      // Desempate por orden alfabético
+      const eq1 = arrStats.filter(j => j.team === 'Equipo 1').sort((a,b) => b.puntos - a.puntos || a.name.localeCompare(b.name));
+      const eq2 = arrStats.filter(j => j.team === 'Equipo 2').sort((a,b) => b.puntos - a.puntos || a.name.localeCompare(b.name));
+
+      return { eq1, eq2, todos: arrStats.sort((a,b) => b.puntos - a.puntos || a.name.localeCompare(b.name)) };
+    }
+
+    function calcularClasificacion() {
+      let puntosEquipo1 = 0;
+      let puntosEquipo2 = 0;
+
+      const ranking = obtenerRankingActual();
+
+      // Puntos por Equipos
+      partidosData.forEach(p => {
+        if (p.juegos_pareja1 !== null && p.juegos_pareja2 !== null) {
+          const multiplicador = (p.turno >= 15) ? 2 : 0.5; // Regla especial turnos 15 y 16
+          puntosEquipo1 += (p.juegos_pareja1 * multiplicador);
+          puntosEquipo2 += (p.juegos_pareja2 * multiplicador);
+        }
+      });
+
+      document.getElementById('puntos-eq1').innerText = puntosEquipo1;
+      document.getElementById('puntos-eq2').innerText = puntosEquipo2;
+
+      // Ranking Individual
+      const rBody = document.getElementById('ranking-body');
+      rBody.innerHTML = '';
+
+      ranking.todos.forEach((j, index) => {
+        rBody.innerHTML += `
+          <tr>
+            <td class="posicion">${index + 1}º</td>
+            <td>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <img src="${j.photo || 'https://via.placeholder.com/25'}" style="width:25px; height:25px; border-radius:50%; object-fit:cover;">
+                <strong>${j.name}</strong>
+              </div>
+            </td>
+            <td><small>${j.team}</small></td>
+            <td><strong>${j.puntos}</strong></td>
+          </tr>
+        `;
+      });
+    }
+
+    // --- GESTIÓN DE RESULTADOS (ADMIN) ---
+    function abrirModal(turno, pista, jugadores) {
+      document.getElementById('modal-turno').value = turno;
+      document.getElementById('modal-pista').value = pista;
+      document.getElementById('modal-titulo').innerText = `Turno ${turno} - Pista ${pista}`;
+
+      const j1 = jugadoresData.find(x => x.id == jugadores[0])?.name || `Jugador ${jugadores[0]}`;
+      const j2 = jugadoresData.find(x => x.id == jugadores[1])?.name || `Jugador ${jugadores[1]}`;
+      const j3 = jugadoresData.find(x => x.id == jugadores[2])?.name || `Jugador ${jugadores[2]}`;
+      const j4 = jugadoresData.find(x => x.id == jugadores[3])?.name || `Jugador ${jugadores[3]}`;
+
+      document.getElementById('lbl-pareja1').innerText = `${j1} & ${j2}`;
+      document.getElementById('lbl-pareja2').innerText = `${j3} & ${j4}`;
+
+      const existente = partidosData.find(p => p.turno === turno && p.pista === pista);
+      document.getElementById('res-pareja1').value = existente ? existente.juegos_pareja1 : '';
+      document.getElementById('res-pareja2').value = existente ? existente.juegos_pareja2 : '';
+
+      document.getElementById('modal-partido').style.display = 'flex';
+    }
+
+    function cerrarModal() {
+      document.getElementById('modal-partido').style.display = 'none';
+    }
+
+    async function guardarResultado(e) {
       e.preventDefault();
-      const btnSave = document.getElementById('btnSave');
-      btnSave.disabled = true;
-      btnSave.textContent = "Guardando en la nube...";
+      const turno = parseInt(document.getElementById('modal-turno').value);
+      const pista = parseInt(document.getElementById('modal-pista').value);
+      const res1 = parseInt(document.getElementById('res-pareja1').value);
+      const res2 = parseInt(document.getElementById('res-pareja2').value);
 
-      const name = document.getElementById('playerName').value.trim();
-      const team = document.getElementById('playerTeam').value;
-      const photo = playerPhotoData.value;
+      if (!confirm(`¿Confirmar resultado del Turno ${turno} (Pista ${pista}): ${res1} - ${res2}?`)) return;
 
-      const { error } = await db.from('jugadores').update({ name, team, photo }).eq('id', editingId);
+      // Obtener jugadores correspondientes a ese turno
+      const ranking = obtenerRankingActual();
+      let j1, j2, j3, j4;
 
-      btnSave.disabled = false;
-      btnSave.textContent = "Actualizar Datos";
+      if (turno <= 14) {
+        const base = CUADRANTE_BASE.find(c => c.turno === turno);
+        const pareja = pista === 1 ? base.p1 : base.p2;
+        j1 = pareja[0]; j2 = pareja[1]; j3 = pareja[2]; j4 = pareja[3];
+      } else if (turno === 15) {
+        if (pista === 1) {
+          j1 = ranking.eq1[0]?.id; j2 = ranking.eq1[1]?.id; j3 = ranking.eq2[0]?.id; j4 = ranking.eq2[1]?.id;
+        } else {
+          j1 = ranking.eq1[4]?.id; j2 = ranking.eq1[5]?.id; j3 = ranking.eq2[4]?.id; j4 = ranking.eq2[5]?.id;
+        }
+      } else if (turno === 16) {
+        if (pista === 1) {
+          j1 = ranking.eq1[2]?.id; j2 = ranking.eq1[3]?.id; j3 = ranking.eq2[2]?.id; j4 = ranking.eq2[3]?.id;
+        } else {
+          j1 = ranking.eq1[6]?.id; j2 = ranking.eq1[7]?.id; j3 = ranking.eq2[6]?.id; j4 = ranking.eq2[7]?.id;
+        }
+      }
+
+      const { data, error } = await db.from('partidos').upsert({
+        turno: turno,
+        pista: pista,
+        jugador1_id: String(j1),
+        jugador2_id: String(j2),
+        jugador3_id: String(j3),
+        jugador4_id: String(j4),
+        juegos_pareja1: res1,
+        juegos_pareja2: res2
+      }, { onConflict: 'turno,pista' });
 
       if (error) {
-        alert("Error al actualizar datos en la nube.");
+        alert('Error al guardar en Supabase: ' + error.message);
       } else {
-        closeForm();
-        fetchPlayers();
-      }
-    });
-
-    document.getElementById('btnCancelEdit').addEventListener('click', closeForm);
-
-    function closeForm() {
-      editingId = null;
-      document.getElementById('playerForm').reset();
-      playerPhotoData.value = '';
-      playerPhotoInput.value = '';
-      photoPreview.style.display = 'none';
-      document.getElementById('cardPlayerForm').style.display = 'none';
-    }
-
-    async function resetPlayer(id) {
-      if (confirm("¿Deseas restablecer este jugador a su nombre original?")) {
-        await db.from('jugadores').update({
-          name: `Jugador ${id}`,
-          team: id % 2 !== 0 ? "Equipo 1" : "Equipo 2",
-          photo: ""
-        }).eq('id', id);
-
-        if (editingId === id) closeForm();
-        fetchPlayers();
+        cerrarModal();
+        await cargarDatosSupabase();
       }
     }
-
-    // Inicialización
-    updateAdminUI();
-    fetchPlayers();
   </script>
 </body>
 </html>
