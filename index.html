@@ -35,22 +35,24 @@
       padding-bottom: 70px;
     }
 
-    header {
-      background-color: var(--primary);
-      color: var(--white);
+header {
+      background-color: #ffffff;
       text-align: center;
-      padding: 15px 10px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      padding: 8px 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
       position: sticky;
       top: 0;
       z-index: 100;
     }
 
-    header h1 {
-      font-size: 1.4rem;
-      margin-bottom: 5px;
+    .header-banner {
+      max-width: 100%;
+      height: auto;
+      max-height: 80px;
+      display: block;
+      margin: 0 auto;
+      object-fit: contain;
     }
-
     .admin-bar {
       background-color: #333;
       color: white;
@@ -343,9 +345,9 @@
 </head>
 <body>
 
-  <header>
-    <h1>Torneo de Pádel Jérica</h1>
-    <div id="status-cloud" style="font-size:0.75rem; opacity:0.8;">☁️ Conectado a la nube</div>
+<header>
+    <img src="banner.png" alt="Torneo de Pádel Jérica" class="header-banner">
+    <div id="status-cloud" style="font-size:0.75rem; color:#666; margin-top:4px;">☁️ Conectado a la nube</div>
   </header>
 
   <div class="admin-bar">
