@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Torneo Pádel Jerica</title>
-  <!-- Iconos de Bootstrap para la barra de navegación -->
+  <!-- Iconos de Bootstrap -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
   <style>
     :root {
@@ -30,33 +30,26 @@
       padding-bottom: calc(var(--nav-height) + 20px);
     }
 
-   /* Cabecera superior */
-header {
-  background-color: #ffffff;
-  text-align: center;
-  padding: 8px 10px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-  position: sticky;
-  top: 0;
-  z-index: 100;
-}
-
-/* Estilo para el banner */
-.header-banner {
-  max-width: 100%;
-  height: auto;
-  max-height: 80px; /* Ajusta este valor si quieres que el banner sea más alto o más bajo */
-  display: block;
-  margin: 0 auto;
-  object-fit: contain;
-}
-
-    header h1 {
-      font-size: 1.3rem;
-      font-weight: 700;
+    /* Cabecera con Banner */
+    header {
+      background-color: #ffffff;
+      text-align: center;
+      padding: 8px 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      position: sticky;
+      top: 0;
+      z-index: 100;
     }
 
-    /* Contenedor principal de pestañas */
+    .header-banner {
+      max-width: 100%;
+      height: auto;
+      max-height: 80px;
+      display: block;
+      margin: 0 auto;
+      object-fit: contain;
+    }
+
     main {
       padding: 15px;
       max-width: 600px;
@@ -71,7 +64,6 @@ header {
       display: block;
     }
 
-    /* Tarjetas generales */
     .card {
       background: var(--card-bg);
       border-radius: 12px;
@@ -88,7 +80,7 @@ header {
       padding-bottom: 6px;
     }
 
-    /* Barra de Navegación Inferior (Móvil) */
+    /* Navegación Inferior Móvil */
     .bottom-nav {
       position: fixed;
       bottom: 0;
@@ -129,7 +121,7 @@ header {
       font-weight: bold;
     }
 
-    /* Formulario de Jugadores */
+    /* Formulario */
     .form-group {
       margin-bottom: 12px;
     }
@@ -159,18 +151,11 @@ header {
       cursor: pointer;
     }
 
-    .btn-primary {
-      background-color: var(--primary-color);
-      color: white;
-    }
+    .btn-primary { background-color: var(--primary-color); color: white; }
+    .btn-secondary { background-color: #6c757d; color: white; margin-top: 6px; }
+    .btn-danger { background-color: var(--danger-color); color: white; margin-top: 10px; }
 
-    .btn-secondary {
-      background-color: #6c757d;
-      color: white;
-      margin-top: 6px;
-    }
-
-    /* Lista de Jugadores registrados */
+    /* Lista de Jugadores */
     .player-counter {
       display: flex;
       justify-content: space-between;
@@ -202,8 +187,8 @@ header {
     }
 
     .player-avatar {
-      width: 45px;
-      height: 45px;
+      width: 48px;
+      height: 48px;
       border-radius: 50%;
       object-fit: cover;
       background-color: #ddd;
@@ -243,16 +228,29 @@ header {
 
     .btn-edit { color: var(--primary-color); }
     .btn-delete { color: var(--danger-color); }
+
+    .admin-banner {
+      background: #e6fffa;
+      border: 1px solid #38b2ac;
+      color: #234e52;
+      padding: 10px;
+      border-radius: 8px;
+      margin-bottom: 12px;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
   </style>
 </head>
 <body>
 
   <header>
-  <img src="banner.png" alt="Pádel Jérica" class="header-banner">
-</header>
+    <img src="banner.png" alt="Pádel Jérica" class="header-banner" onerror="this.outerHTML='<h1>Pádel Jérica</h1>'">
+  </header>
 
   <main>
-    <!-- PESTAÑA 1: INFORMACIÓN DEL TORNEO (Estática) -->
+    <!-- PESTAÑA 1: INFORMACIÓN DEL TORNEO -->
     <section id="tab-info" class="tab-content active">
       <div class="card">
         <h2>ℹ️ Información del Torneo</h2>
@@ -275,17 +273,23 @@ header {
       </div>
     </section>
 
-    <!-- PESTAÑA 2: JUGADORES (Edición Privada) -->
+    <!-- PESTAÑA 2: JUGADORES (Pública / Solo Lectura por defecto) -->
     <section id="tab-jugadores" class="tab-content">
       
+      <!-- Aviso si está en modo Administrador -->
+      <div id="adminNotice" class="admin-banner" style="display: none;">
+        <i class="bi bi-shield-check" style="font-size: 1.2rem;"></i>
+        <span>Modo Administrador Activo. Puedes crear y editar jugadores.</span>
+      </div>
+
       <!-- Contador de inscritos -->
       <div class="player-counter">
-        <span>Jugadores registrados:</span>
+        <span>Jugadores inscritos:</span>
         <span id="counterText">0 / 16</span>
       </div>
 
-      <!-- Formulario para Añadir / Editar Jugador -->
-      <div class="card">
+      <!-- Formulario para Añadir / Editar Jugador (SOLO VISIBLE SI ERES ADMIN) -->
+      <div class="card" id="cardPlayerForm" style="display: none;">
         <h2 id="formTitle">➕ Registrar Jugador</h2>
         <form id="playerForm">
           <input type="hidden" id="playerId">
@@ -304,8 +308,12 @@ header {
           </div>
 
           <div class="form-group">
-            <label for="playerPhoto">URL de la Foto (Opcional)</label>
-            <input type="url" id="playerPhoto" class="form-control" placeholder="https://ejemplo.com/foto.jpg">
+            <label for="playerPhotoInput">Foto (Hacer foto con cámara o elegir de galería)</label>
+            <input type="file" id="playerPhotoInput" class="form-control" accept="image/*" capture="environment">
+            <input type="hidden" id="playerPhotoData">
+            <div id="photoPreview" style="margin-top: 8px; display: none;">
+              <img id="imgPreview" src="" style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover;">
+            </div>
           </div>
 
           <button type="submit" id="btnSubmit" class="btn btn-primary">Guardar Jugador</button>
@@ -313,7 +321,7 @@ header {
         </form>
       </div>
 
-      <!-- Lista de Jugadores Registrados -->
+      <!-- Lista de Jugadores Registrados (Pública) -->
       <div class="card">
         <h2>📋 Lista de Jugadores</h2>
         <div id="playersList">
@@ -323,25 +331,44 @@ header {
 
     </section>
 
-    <!-- PESTAÑAS 3, 4 y 5 (Marcadores de posición por ahora) -->
+    <!-- PESTAÑA 3 (Pública) -->
     <section id="tab-pestana3" class="tab-content">
       <div class="card">
-        <h2>Pestaña 3</h2>
-        <p>Contenido público de la tercera pestaña.</p>
+        <h2>🏆 Clasificación / Partidos</h2>
+        <p>Próximamente disponible.</p>
       </div>
     </section>
 
-    <section id="tab-pestana4" class="tab-content">
-      <div class="card">
-        <h2>Pestaña 4</h2>
-        <p>Panel privado de edición.</p>
+    <!-- PESTAÑA 4: ADMIN / LOGIN (Privada) -->
+    <section id="tab-admin" class="tab-content">
+      
+      <!-- Si NO está logueado -->
+      <div class="card" id="loginCard">
+        <h2>🔒 Acceso Administrador</h2>
+        <form id="loginForm">
+          <div class="form-group">
+            <label for="adminPass">Contraseña de Administrador</label>
+            <input type="password" id="adminPass" class="form-control" placeholder="Introduce la contraseña" required>
+          </div>
+          <button type="submit" class="btn btn-primary">Entrar</button>
+        </form>
       </div>
+
+      <!-- Si YA está logueado -->
+      <div class="card" id="loggedCard" style="display: none;">
+        <h2>⚙️ Panel de Control</h2>
+        <p>Has iniciado sesión correctamente como Administrador.</p>
+        <p style="font-size: 0.85rem; color: #666; margin-top: 8px;">Ahora puedes ir a la pestaña <strong>Jugadores</strong> para añadir, modificar o borrar registros.</p>
+        <button type="button" onclick="logoutAdmin()" class="btn btn-danger">Cerrar Sesión</button>
+      </div>
+
     </section>
 
+    <!-- PESTAÑA 5 (Ajustes) -->
     <section id="tab-pestana5" class="tab-content">
       <div class="card">
-        <h2>Pestaña 5</h2>
-        <p>Ajustes generales o configuración.</p>
+        <h2>⚙️ Configuración</h2>
+        <p>Ajustes generales del torneo.</p>
       </div>
     </section>
   </main>
@@ -358,25 +385,26 @@ header {
     </button>
     <button class="nav-item" onclick="switchTab('tab-pestana3', this)">
       <i class="bi bi-trophy"></i>
-      <span>Pestaña 3</span>
+      <span>Partidos</span>
     </button>
-    <button class="nav-item" onclick="switchTab('tab-pestana4', this)">
-      <i class="bi bi-pencil-square"></i>
-      <span>Pestaña 4</span>
+    <button class="nav-item" onclick="switchTab('tab-admin', this)">
+      <i class="bi bi-shield-lock"></i>
+      <span>Admin</span>
     </button>
     <button class="nav-item" onclick="switchTab('tab-pestana5', this)">
       <i class="bi bi-gear"></i>
-      <span>Pestaña 5</span>
+      <span>Ajustes</span>
     </button>
   </nav>
 
   <script>
-    // --- ESTADO Y DATOS DE JUGADORES ---
+    // --- CLAVE DE ADMINISTRADOR (Cámbiala por la que tú quieras) ---
+    const ADMIN_PASSWORD = "jerica"; 
+
+    let isAdmin = localStorage.getItem('padel_admin_logged') === 'true';
     let players = JSON.parse(localStorage.getItem('padel_players')) || [];
     const maxPlayers = 16;
     let editingId = null;
-
-    // Foto por defecto si el usuario no introduce una
     const defaultAvatar = "https://cdn-icons-png.flaticon.com/512/847/847969.png";
 
     // --- CAMBIO DE PESTAÑAS ---
@@ -387,7 +415,68 @@ header {
       document.getElementById(tabId).classList.add('active');
       btnElement.classList.add('active');
       window.scrollTo(0, 0);
+
+      // Si entra en Jugadores, refrescar estado visual
+      if (tabId === 'tab-jugadores') {
+        renderPlayers();
+      }
     }
+
+    // --- LOGIN DE ADMIN ---
+    document.getElementById('loginForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const pass = document.getElementById('adminPass').value;
+      if (pass === ADMIN_PASSWORD) {
+        isAdmin = true;
+        localStorage.setItem('padel_admin_logged', 'true');
+        updateAdminUI();
+        alert("¡Bienvenido! Ya puedes editar datos en las pestañas.");
+        document.getElementById('adminPass').value = '';
+      } else {
+        alert("Contraseña incorrecta.");
+      }
+    });
+
+    function logoutAdmin() {
+      isAdmin = false;
+      localStorage.removeItem('padel_admin_logged');
+      updateAdminUI();
+      renderPlayers();
+      alert("Sesión cerrada correctamente.");
+    }
+
+    function updateAdminUI() {
+      if (isAdmin) {
+        document.getElementById('loginCard').style.display = 'none';
+        document.getElementById('loggedCard').style.display = 'block';
+        document.getElementById('cardPlayerForm').style.display = 'block';
+        document.getElementById('adminNotice').style.display = 'flex';
+      } else {
+        document.getElementById('loginCard').style.display = 'block';
+        document.getElementById('loggedCard').style.display = 'none';
+        document.getElementById('cardPlayerForm').style.display = 'none';
+        document.getElementById('adminNotice').style.display = 'none';
+      }
+    }
+
+    // --- MANEJO DE CÁMARA / FOTO ---
+    const playerPhotoInput = document.getElementById('playerPhotoInput');
+    const playerPhotoData = document.getElementById('playerPhotoData');
+    const photoPreview = document.getElementById('photoPreview');
+    const imgPreview = document.getElementById('imgPreview');
+
+    playerPhotoInput.addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+          playerPhotoData.value = evt.target.result; // Imagen en formato Base64
+          imgPreview.src = evt.target.result;
+          photoPreview.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+      }
+    });
 
     // --- GESTIÓN DE JUGADORES ---
     const playerForm = document.getElementById('playerForm');
@@ -398,10 +487,8 @@ header {
     const btnCancelEdit = document.getElementById('btnCancelEdit');
 
     function renderPlayers() {
-      // Actualizar contador
       counterText.textContent = `${players.length} / ${maxPlayers}`;
 
-      // Deshabilitar formulario si llegamos al tope y no estamos editando
       if (players.length >= maxPlayers && editingId === null) {
         btnSubmit.disabled = true;
         btnSubmit.textContent = "Cupo máximo alcanzado (16)";
@@ -410,7 +497,6 @@ header {
         btnSubmit.textContent = editingId !== null ? "Actualizar Jugador" : "Guardar Jugador";
       }
 
-      // Renderizar la lista
       if (players.length === 0) {
         playersList.innerHTML = '<p style="text-align: center; color: #888; padding: 10px;">No hay jugadores registrados todavía.</p>';
         return;
@@ -425,10 +511,12 @@ header {
               <span class="badge-team ${p.team === 'Equipo 1' ? 'badge-equipo1' : 'badge-equipo2'}">${p.team}</span>
             </div>
           </div>
-          <div class="player-actions">
-            <button class="btn-icon btn-edit" onclick="editPlayer('${p.id}')" title="Editar"><i class="bi bi-pencil"></i></button>
-            <button class="btn-icon btn-delete" onclick="deletePlayer('${p.id}')" title="Borrar"><i class="bi bi-trash"></i></button>
-          </div>
+          ${isAdmin ? `
+            <div class="player-actions">
+              <button class="btn-icon btn-edit" onclick="editPlayer('${p.id}')" title="Editar"><i class="bi bi-pencil"></i></button>
+              <button class="btn-icon btn-delete" onclick="deletePlayer('${p.id}')" title="Borrar"><i class="bi bi-trash"></i></button>
+            </div>
+          ` : ''}
         </div>
       `).join('');
     }
@@ -439,32 +527,28 @@ header {
 
       const name = document.getElementById('playerName').value.trim();
       const team = document.getElementById('playerTeam').value;
-      const photo = document.getElementById('playerPhoto').value.trim();
+      const photo = playerPhotoData.value;
 
       if (editingId !== null) {
-        // Modo Edición
-        players = players.map(p => p.id === editingId ? { ...p, name, team, photo } : p);
+        players = players.map(p => p.id === editingId ? { ...p, name, team, photo: photo || p.photo } : p);
         editingId = null;
       } else {
-        // Modo Nuevo
         if (players.length >= maxPlayers) {
           alert("Ya se ha alcanzado el límite máximo de 16 jugadores.");
           return;
         }
-        const newPlayer = {
+        players.push({
           id: Date.now().toString(),
           name,
           team,
           photo
-        };
-        players.push(newPlayer);
+        });
       }
 
       saveAndRefresh();
       resetForm();
     });
 
-    // Iniciar Modo Edición
     function editPlayer(id) {
       const player = players.find(p => p.id === id);
       if (!player) return;
@@ -473,17 +557,21 @@ header {
       document.getElementById('playerId').value = player.id;
       document.getElementById('playerName').value = player.name;
       document.getElementById('playerTeam').value = player.team;
-      document.getElementById('playerPhoto').value = player.photo;
+      playerPhotoData.value = player.photo || '';
+      
+      if (player.photo) {
+        imgPreview.src = player.photo;
+        photoPreview.style.display = 'block';
+      } else {
+        photoPreview.style.display = 'none';
+      }
 
       formTitle.textContent = "✏️ Editar Jugador";
       btnCancelEdit.style.display = "block";
       renderPlayers();
-      
-      // Desplazar la pantalla suavemente hacia el formulario
-      document.getElementById('playerForm').scrollIntoView({ behavior: 'smooth' });
+      document.getElementById('cardPlayerForm').scrollIntoView({ behavior: 'smooth' });
     }
 
-    // Cancelar Edición
     btnCancelEdit.addEventListener('click', () => {
       resetForm();
     });
@@ -491,12 +579,13 @@ header {
     function resetForm() {
       editingId = null;
       playerForm.reset();
+      playerPhotoData.value = '';
+      photoPreview.style.display = 'none';
       formTitle.textContent = "➕ Registrar Jugador";
       btnCancelEdit.style.display = "none";
       renderPlayers();
     }
 
-    // Borrar Jugador
     function deletePlayer(id) {
       if (confirm("¿Está seguro de Borrar este jugador?")) {
         players = players.filter(p => p.id !== id);
@@ -510,7 +599,8 @@ header {
       renderPlayers();
     }
 
-    // Carga inicial
+    // Inicialización
+    updateAdminUI();
     renderPlayers();
   </script>
 </body>
