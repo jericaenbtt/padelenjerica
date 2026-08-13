@@ -30,17 +30,26 @@
       padding-bottom: calc(var(--nav-height) + 20px);
     }
 
-    /* Cabecera superior */
-    header {
-      background-color: var(--primary-color);
-      color: white;
-      text-align: center;
-      padding: 15px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      position: sticky;
-      top: 0;
-      z-index: 100;
-    }
+   /* Cabecera superior */
+header {
+  background-color: #ffffff;
+  text-align: center;
+  padding: 8px 10px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+/* Estilo para el banner */
+.header-banner {
+  max-width: 100%;
+  height: auto;
+  max-height: 80px; /* Ajusta este valor si quieres que el banner sea más alto o más bajo */
+  display: block;
+  margin: 0 auto;
+  object-fit: contain;
+}
 
     header h1 {
       font-size: 1.3rem;
@@ -239,8 +248,8 @@
 <body>
 
   <header>
-    <h1>Pádel Jérica</h1>
-  </header>
+  <img src="banner.png" alt="Pádel Jérica" class="header-banner">
+</header>
 
   <main>
     <!-- PESTAÑA 1: INFORMACIÓN DEL TORNEO (Estática) -->
