@@ -30,7 +30,6 @@
       padding-bottom: calc(var(--nav-height) + 20px);
     }
 
-    /* Cabecera con Banner */
     header {
       background-color: #ffffff;
       text-align: center;
@@ -80,7 +79,7 @@
       padding-bottom: 6px;
     }
 
-    /* Navegación Inferior Móvil */
+    /* Navegación Inferior */
     .bottom-nav {
       position: fixed;
       bottom: 0;
@@ -121,7 +120,7 @@
       font-weight: bold;
     }
 
-    /* Formulario */
+    /* Formularios */
     .form-group {
       margin-bottom: 12px;
     }
@@ -156,18 +155,6 @@
     .btn-danger { background-color: var(--danger-color); color: white; margin-top: 10px; }
 
     /* Lista de Jugadores */
-    .player-counter {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: #eef4ff;
-      padding: 10px 14px;
-      border-radius: 8px;
-      margin-bottom: 15px;
-      font-weight: 600;
-      color: var(--primary-color);
-    }
-
     .player-item {
       display: flex;
       align-items: center;
@@ -191,7 +178,7 @@
       height: 48px;
       border-radius: 50%;
       object-fit: cover;
-      background-color: #ddd;
+      background-color: #e0e0e0;
     }
 
     .player-name {
@@ -250,7 +237,7 @@
   </header>
 
   <main>
-    <!-- PESTAÑA 1: INFORMACIÓN DEL TORNEO -->
+    <!-- PESTAÑA 1: INFORMACIÓN -->
     <section id="tab-info" class="tab-content active">
       <div class="card">
         <h2>ℹ️ Información del Torneo</h2>
@@ -273,29 +260,23 @@
       </div>
     </section>
 
-    <!-- PESTAÑA 2: JUGADORES (Pública / Solo Lectura por defecto) -->
+    <!-- PESTAÑA 2: JUGADORES -->
     <section id="tab-jugadores" class="tab-content">
       
-      <!-- Aviso si está en modo Administrador -->
+      <!-- Banner informativo de Admin -->
       <div id="adminNotice" class="admin-banner" style="display: none;">
         <i class="bi bi-shield-check" style="font-size: 1.2rem;"></i>
-        <span>Modo Administrador Activo. Puedes crear y editar jugadores.</span>
+        <span>Modo Administrador Activo. Puedes modificar los jugadores.</span>
       </div>
 
-      <!-- Contador de inscritos -->
-      <div class="player-counter">
-        <span>Jugadores inscritos:</span>
-        <span id="counterText">0 / 16</span>
-      </div>
-
-      <!-- Formulario para Añadir / Editar Jugador (SOLO VISIBLE SI ERES ADMIN) -->
+      <!-- Formulario de Edición (SOLO SE MUESTRA AL PULSAR EDITAR EN MODO ADMIN) -->
       <div class="card" id="cardPlayerForm" style="display: none;">
-        <h2 id="formTitle">➕ Registrar Jugador</h2>
+        <h2>✏️ Modificar Jugador</h2>
         <form id="playerForm">
           <input type="hidden" id="playerId">
           
           <div class="form-group">
-            <label for="playerName">Nombre y Apellidos</label>
+            <label for="playerName">Nombre del Jugador</label>
             <input type="text" id="playerName" class="form-control" placeholder="Ej. Juan Pérez" required>
           </div>
 
@@ -308,7 +289,7 @@
           </div>
 
           <div class="form-group">
-            <label for="playerPhotoInput">Foto (Hacer foto con cámara o elegir de galería)</label>
+            <label for="playerPhotoInput">Hacer Foto (Cámara del móvil / Galería)</label>
             <input type="file" id="playerPhotoInput" class="form-control" accept="image/*" capture="environment">
             <input type="hidden" id="playerPhotoData">
             <div id="photoPreview" style="margin-top: 8px; display: none;">
@@ -316,30 +297,30 @@
             </div>
           </div>
 
-          <button type="submit" id="btnSubmit" class="btn btn-primary">Guardar Jugador</button>
-          <button type="button" id="btnCancelEdit" class="btn btn-secondary" style="display: none;">Cancelar Edición</button>
+          <button type="submit" class="btn btn-primary">Actualizar Datos</button>
+          <button type="button" id="btnCancelEdit" class="btn btn-secondary">Cancelar</button>
         </form>
       </div>
 
-      <!-- Lista de Jugadores Registrados (Pública) -->
+      <!-- Lista Pública de los 16 Jugadores -->
       <div class="card">
-        <h2>📋 Lista de Jugadores</h2>
+        <h2>📋 Lista de Jugadores (16)</h2>
         <div id="playersList">
-          <!-- Se rellena dinámicamente -->
+          <!-- Carga los 16 jugadores predefinidos -->
         </div>
       </div>
 
     </section>
 
-    <!-- PESTAÑA 3 (Pública) -->
+    <!-- PESTAÑA 3 -->
     <section id="tab-pestana3" class="tab-content">
       <div class="card">
-        <h2>🏆 Clasificación / Partidos</h2>
+        <h2>🏆 Partidos / Resultados</h2>
         <p>Próximamente disponible.</p>
       </div>
     </section>
 
-    <!-- PESTAÑA 4: ADMIN / LOGIN (Privada) -->
+    <!-- PESTAÑA 4: ADMIN / LOGIN -->
     <section id="tab-admin" class="tab-content">
       
       <!-- Si NO está logueado -->
@@ -358,17 +339,17 @@
       <div class="card" id="loggedCard" style="display: none;">
         <h2>⚙️ Panel de Control</h2>
         <p>Has iniciado sesión correctamente como Administrador.</p>
-        <p style="font-size: 0.85rem; color: #666; margin-top: 8px;">Ahora puedes ir a la pestaña <strong>Jugadores</strong> para añadir, modificar o borrar registros.</p>
+        <p style="font-size: 0.85rem; color: #666; margin-top: 8px;">Ve a la pestaña <strong>Jugadores</strong> para editar el nombre, equipo y fotos de los 16 participantes.</p>
         <button type="button" onclick="logoutAdmin()" class="btn btn-danger">Cerrar Sesión</button>
       </div>
 
     </section>
 
-    <!-- PESTAÑA 5 (Ajustes) -->
+    <!-- PESTAÑA 5 -->
     <section id="tab-pestana5" class="tab-content">
       <div class="card">
-        <h2>⚙️ Configuración</h2>
-        <p>Ajustes generales del torneo.</p>
+        <h2>⚙️ Ajustes</h2>
+        <p>Configuración general.</p>
       </div>
     </section>
   </main>
@@ -398,16 +379,34 @@
   </nav>
 
   <script>
-    // --- CLAVE DE ADMINISTRADOR (Cámbiala por la que tú quieras) ---
     const ADMIN_PASSWORD = "jerica"; 
-
-    let isAdmin = localStorage.getItem('padel_admin_logged') === 'true';
-    let players = JSON.parse(localStorage.getItem('padel_players')) || [];
-    const maxPlayers = 16;
-    let editingId = null;
     const defaultAvatar = "https://cdn-icons-png.flaticon.com/512/847/847969.png";
 
-    // --- CAMBIO DE PESTAÑAS ---
+    // Generador inicial de los 16 jugadores base
+    function generateInitialPlayers() {
+      const initial = [];
+      for (let i = 1; i <= 16; i++) {
+        initial.push({
+          id: i.toString(),
+          name: `Jugador ${i}`,
+          team: i % 2 !== 0 ? "Equipo 1" : "Equipo 2",
+          photo: ""
+        });
+      }
+      return initial;
+    }
+
+    // Carga o inicializa los datos
+    let players = JSON.parse(localStorage.getItem('padel_players'));
+    if (!players || players.length !== 16) {
+      players = generateInitialPlayers();
+      localStorage.setItem('padel_players', JSON.stringify(players));
+    }
+
+    let isAdmin = localStorage.getItem('padel_admin_logged') === 'true';
+    let editingId = null;
+
+    // --- NAVEGACIÓN ---
     function switchTab(tabId, btnElement) {
       document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
       document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
@@ -416,13 +415,10 @@
       btnElement.classList.add('active');
       window.scrollTo(0, 0);
 
-      // Si entra en Jugadores, refrescar estado visual
-      if (tabId === 'tab-jugadores') {
-        renderPlayers();
-      }
+      renderPlayers();
     }
 
-    // --- LOGIN DE ADMIN ---
+    // --- ACCESO Y LOGIN ---
     document.getElementById('loginForm').addEventListener('submit', (e) => {
       e.preventDefault();
       const pass = document.getElementById('adminPass').value;
@@ -430,7 +426,7 @@
         isAdmin = true;
         localStorage.setItem('padel_admin_logged', 'true');
         updateAdminUI();
-        alert("¡Bienvenido! Ya puedes editar datos en las pestañas.");
+        alert("¡Acceso correcto! Ahora puedes modificar jugadores.");
         document.getElementById('adminPass').value = '';
       } else {
         alert("Contraseña incorrecta.");
@@ -440,26 +436,26 @@
     function logoutAdmin() {
       isAdmin = false;
       localStorage.removeItem('padel_admin_logged');
+      closeForm();
       updateAdminUI();
       renderPlayers();
-      alert("Sesión cerrada correctamente.");
+      alert("Sesión cerrada.");
     }
 
     function updateAdminUI() {
       if (isAdmin) {
         document.getElementById('loginCard').style.display = 'none';
         document.getElementById('loggedCard').style.display = 'block';
-        document.getElementById('cardPlayerForm').style.display = 'block';
         document.getElementById('adminNotice').style.display = 'flex';
       } else {
         document.getElementById('loginCard').style.display = 'block';
         document.getElementById('loggedCard').style.display = 'none';
-        document.getElementById('cardPlayerForm').style.display = 'none';
         document.getElementById('adminNotice').style.display = 'none';
+        document.getElementById('cardPlayerForm').style.display = 'none';
       }
     }
 
-    // --- MANEJO DE CÁMARA / FOTO ---
+    // --- CÁMARA Y ARCHIVOS ---
     const playerPhotoInput = document.getElementById('playerPhotoInput');
     const playerPhotoData = document.getElementById('playerPhotoData');
     const photoPreview = document.getElementById('photoPreview');
@@ -470,7 +466,7 @@
       if (file) {
         const reader = new FileReader();
         reader.onload = function(evt) {
-          playerPhotoData.value = evt.target.result; // Imagen en formato Base64
+          playerPhotoData.value = evt.target.result;
           imgPreview.src = evt.target.result;
           photoPreview.style.display = 'block';
         };
@@ -478,29 +474,9 @@
       }
     });
 
-    // --- GESTIÓN DE JUGADORES ---
-    const playerForm = document.getElementById('playerForm');
-    const playersList = document.getElementById('playersList');
-    const counterText = document.getElementById('counterText');
-    const formTitle = document.getElementById('formTitle');
-    const btnSubmit = document.getElementById('btnSubmit');
-    const btnCancelEdit = document.getElementById('btnCancelEdit');
-
+    // --- RENDERIZADO Y EDICIÓN ---
     function renderPlayers() {
-      counterText.textContent = `${players.length} / ${maxPlayers}`;
-
-      if (players.length >= maxPlayers && editingId === null) {
-        btnSubmit.disabled = true;
-        btnSubmit.textContent = "Cupo máximo alcanzado (16)";
-      } else {
-        btnSubmit.disabled = false;
-        btnSubmit.textContent = editingId !== null ? "Actualizar Jugador" : "Guardar Jugador";
-      }
-
-      if (players.length === 0) {
-        playersList.innerHTML = '<p style="text-align: center; color: #888; padding: 10px;">No hay jugadores registrados todavía.</p>';
-        return;
-      }
+      const playersList = document.getElementById('playersList');
 
       playersList.innerHTML = players.map(p => `
         <div class="player-item">
@@ -514,40 +490,12 @@
           ${isAdmin ? `
             <div class="player-actions">
               <button class="btn-icon btn-edit" onclick="editPlayer('${p.id}')" title="Editar"><i class="bi bi-pencil"></i></button>
-              <button class="btn-icon btn-delete" onclick="deletePlayer('${p.id}')" title="Borrar"><i class="bi bi-trash"></i></button>
+              <button class="btn-icon btn-delete" onclick="resetPlayer('${p.id}')" title="Restablecer"><i class="bi bi-trash"></i></button>
             </div>
           ` : ''}
         </div>
       `).join('');
     }
-
-    // Guardar / Actualizar Jugador
-    playerForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-
-      const name = document.getElementById('playerName').value.trim();
-      const team = document.getElementById('playerTeam').value;
-      const photo = playerPhotoData.value;
-
-      if (editingId !== null) {
-        players = players.map(p => p.id === editingId ? { ...p, name, team, photo: photo || p.photo } : p);
-        editingId = null;
-      } else {
-        if (players.length >= maxPlayers) {
-          alert("Ya se ha alcanzado el límite máximo de 16 jugadores.");
-          return;
-        }
-        players.push({
-          id: Date.now().toString(),
-          name,
-          team,
-          photo
-        });
-      }
-
-      saveAndRefresh();
-      resetForm();
-    });
 
     function editPlayer(id) {
       const player = players.find(p => p.id === id);
@@ -566,30 +514,43 @@
         photoPreview.style.display = 'none';
       }
 
-      formTitle.textContent = "✏️ Editar Jugador";
-      btnCancelEdit.style.display = "block";
-      renderPlayers();
+      document.getElementById('cardPlayerForm').style.display = 'block';
       document.getElementById('cardPlayerForm').scrollIntoView({ behavior: 'smooth' });
     }
 
-    btnCancelEdit.addEventListener('click', () => {
-      resetForm();
+    document.getElementById('playerForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const name = document.getElementById('playerName').value.trim();
+      const team = document.getElementById('playerTeam').value;
+      const photo = playerPhotoData.value;
+
+      players = players.map(p => p.id === editingId ? { ...p, name, team, photo } : p);
+
+      saveAndRefresh();
+      closeForm();
     });
 
-    function resetForm() {
+    document.getElementById('btnCancelEdit').addEventListener('click', closeForm);
+
+    function closeForm() {
       editingId = null;
-      playerForm.reset();
+      document.getElementById('playerForm').reset();
       playerPhotoData.value = '';
       photoPreview.style.display = 'none';
-      formTitle.textContent = "➕ Registrar Jugador";
-      btnCancelEdit.style.display = "none";
-      renderPlayers();
+      document.getElementById('cardPlayerForm').style.display = 'none';
     }
 
-    function deletePlayer(id) {
-      if (confirm("¿Está seguro de Borrar este jugador?")) {
-        players = players.filter(p => p.id !== id);
-        if (editingId === id) resetForm();
+    function resetPlayer(id) {
+      if (confirm("¿Está seguro de Borrar este jugador? Se restablecerá su nombre original.")) {
+        players = players.map(p => p.id === id ? {
+          id: p.id,
+          name: `Jugador ${p.id}`,
+          team: parseInt(p.id) % 2 !== 0 ? "Equipo 1" : "Equipo 2",
+          photo: ""
+        } : p);
+
+        if (editingId === id) closeForm();
         saveAndRefresh();
       }
     }
@@ -599,7 +560,7 @@
       renderPlayers();
     }
 
-    // Inicialización
+    // Inicialización al cargar la página
     updateAdminUI();
     renderPlayers();
   </script>
