@@ -779,20 +779,20 @@ header {
         }
       }
 
-      const { data, error } = await db.from('partidos').upsert({
-        turno: turno,
-        pista: pista,
-        jugador1_id: String(j1),
-        jugador2_id: String(j2),
-        jugador3_id: String(j3),
-        jugador4_id: String(j4),
-        juegos_pareja1: res1,
-        juegos_pareja2: res2
-      }, { onConflict: 'turno,pista' });
+// Reemplaza desde "const { data, error } = await db..." por esto:
+      const { data, error } = await db
+        .from('partidos')
+        .update({
+          juegos_pareja1: res1,
+          juegos_pareja2: res2
+        })
+        .eq('turno', turno)
+        .eq('pista', pista);
 
       if (error) {
         alert('Error al guardar en Supabase: ' + error.message);
       } else {
+        alert('¡Resultado guardado correctamente!');
         cerrarModal();
         await cargarDatosSupabase();
       }
