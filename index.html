@@ -564,34 +564,42 @@ header {
 // --- RENDER JUGADORES CON OPCIONES ADMIN ---
     function renderJugadores() {
       const container = document.getElementById('jugadores-container');
+      if (!container) return;
       container.innerHTML = '';
 
-      if (jugadoresData.length === 0) {
-        container.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #888;">Cargando jugadores...</p>';
+      if (!jugadoresData || jugadoresData.length === 0) {
+        container.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #888;">No hay jugadores registrados.</p>';
         return;
       }
+
+      // Verificamos el estado de admin directamente
+      const esAdminActivo = typeof isAdmin !== 'undefined' && isAdmin;
 
       jugadoresData.forEach(j => {
         const eqClass = j.team === 'Equipo 1' ? 'equipo1' : 'equipo2';
         const photoSrc = j.photo || 'https://via.placeholder.com/70?text=Padel';
+        
+        // Creamos los botones de admin si está logueado
+        let botonesAdmin = '';
+        if (esAdminActivo) {
+          botonesAdmin = `
+            <div style="margin-top: 8px; padding-top: 5px; border-top: 1px solid #eee; display: flex; justify-content: center; gap: 15px;">
+              <button onclick="editarJugador('${j.id}')" style="background: none; border: none; cursor: pointer; font-size: 1.2rem;" title="Editar">✏️</button>
+              <button onclick="borrarJugador('${j.id}')" style="background: none; border: none; cursor: pointer; font-size: 1.2rem;" title="Borrar">🗑️</button>
+            </div>
+          `;
+        }
 
         container.innerHTML += `
           <div class="jugador-card ${eqClass}" style="position: relative;">
             <img src="${photoSrc}" class="jugador-img" alt="${j.name}">
             <div class="jugador-nombre">${j.name}</div>
             <div class="jugador-equipo">${j.team}</div>
-            
-            ${isAdmin ? `
-              <div style="margin-top: 8px; padding-top: 5px; border-top: 1px solid #eee; display: flex; justify-content: center; gap: 10px;">
-                <button onclick="editarJugador(${j.id})" style="background: none; border: none; cursor: pointer; font-size: 1.1rem; color: #1976d2;" title="Editar">✏️</button>
-                <button onclick="borrarJugador(${j.id})" style="background: none; border: none; cursor: pointer; font-size: 1.1rem; color: #d32f2f;" title="Borrar">🗑️</button>
-              </div>
-            ` : ''}
+            ${botonesAdmin}
           </div>
         `;
       });
     }
-
     // --- FUNCIONES DE EDICIÓN Y BORRADO ---
     function editarJugador(id) {
       const j = jugadoresData.find(item => item.id == id);
