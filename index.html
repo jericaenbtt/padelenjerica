@@ -541,25 +541,33 @@ header {
     }
 
     // --- NAVEGACIÓN ---
-    function showTab(tabName) {
-      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-      document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-      
-      document.getElementById(`tab-${tabName}`).classList.add('active');
-      event.currentTarget.classList.add('active');
-    }
+function showTab(tabName) {
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  
+  document.getElementById(`tab-${tabName}`).classList.add('active');
+  event.currentTarget.classList.add('active');
 
-    function toggleAdmin() {
-      const pwd = prompt("Introduce la clave de Administrador:");
-      if (pwd === "Jerica77") { // Clave por defecto
-        isAdmin = !isAdmin;
-        document.getElementById('admin-status').innerText = isAdmin ? "Modo Administrador Activo" : "Modo Lectura";
-        document.querySelectorAll('.admin-only').forEach(el => el.style.display = isAdmin ? 'table-cell' : 'none');
-        renderCalendario();
-      } else {
-        alert("Clave incorrecta.");
-      }
-    }
+  // Si abres la pestaña de jugadores, forzamos la actualización de sus botones
+  if (tabName === 'jugadores') {
+    renderJugadores();
+  }
+}
+
+function toggleAdmin() {
+  const pwd = prompt("Introduce la clave de Administrador:");
+  if (pwd === "Jerica77") { // Reemplaza por tu contraseña si la cambiaste
+    isAdmin = !isAdmin;
+    document.getElementById('admin-status').innerText = isAdmin ? "Modo Administrador Activo" : "Modo Lectura";
+    document.querySelectorAll('.admin-only').forEach(el => el.style.display = isAdmin ? 'table-cell' : 'none');
+    
+    // REFRESCAMOS AMBAS VISTAS:
+    renderJugadores(); 
+    renderCalendario();
+  } else {
+    alert("Clave incorrecta.");
+  }
+}
 
 // --- RENDER JUGADORES CON OPCIONES ADMIN ---
     function renderJugadores() {
