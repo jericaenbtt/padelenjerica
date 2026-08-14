@@ -807,7 +807,7 @@ function toggleAdmin() {
       // Puntos por Equipos
       partidosData.forEach(p => {
         if (p.juegos_pareja1 !== null && p.juegos_pareja2 !== null) {
-          const multiplicador = (p.turno >= 15) ? 2 : 0.5; // Regla especial turnos 15 y 16
+          const multiplicador = (p.turno >= 15) ? 2 : 1; // Regla especial turnos 15 y 16
           puntosEquipo1 += (p.juegos_pareja1 * multiplicador);
           puntosEquipo2 += (p.juegos_pareja2 * multiplicador);
         }
