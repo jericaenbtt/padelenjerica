@@ -781,7 +781,7 @@ function toggleAdmin() {
       });
 
       partidosData.forEach(p => {
-        if (p.juegos_pareja1 !== null && p.juegos_pareja2 !== null) {
+        if (p.juegos_pareja1 !== null && p.juegos_pareja2 !== null && p.turno <= 14) {
           if (p.jugador1_id && stats[p.jugador1_id]) stats[p.jugador1_id].puntos += p.juegos_pareja1;
           if (p.jugador2_id && stats[p.jugador2_id]) stats[p.jugador2_id].puntos += p.juegos_pareja1;
           if (p.jugador3_id && stats[p.jugador3_id]) stats[p.jugador3_id].puntos += p.juegos_pareja2;
