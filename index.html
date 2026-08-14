@@ -613,58 +613,61 @@ function toggleAdmin() {
       const j = jugadoresData.find(item => item.id == id);
       if (!j) return;
 
+      // 1. Preguntamos primero si desea tomar o cambiar foto
+      const cambiarFoto = confirm("¿Quieres tomar o cambiar la foto de " + j.name + "?\n\n(Acepta para abrir la cámara/galería, o Cancela para mantener la foto actual)");
+
+      if (cambiarFoto) {
+        // Lanzamos la cámara/selector de archivo
+        const fileInput = document.createElement('input');
+        fileInput.type = 'file';
+        fileInput.accept = 'image/*';
+        fileInput.setAttribute('capture', 'environment');
+
+        fileInput.onchange = e => {
+          const file = e.target.files[0];
+          if (file) {
+            const reader = new FileReader();
+            reader.onload = readerEvent => {
+              const img = new Image();
+              img.onload = () => {
+                // Comprimiendo la imagen al vuelo para no saturar memoria
+                const canvas = document.createElement('canvas');
+                const MAX_WIDTH = 200;
+                const scaleFactor = MAX_WIDTH / img.width;
+                canvas.width = MAX_WIDTH;
+                canvas.height = img.height * scaleFactor;
+
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                const fotoComprimida = canvas.toDataURL('image/jpeg', 0.7);
+
+                // TRAS HACER LA FOTO: pedimos texto y guardamos TODO
+                pedirTextoYGuardar(j, fotoComprimida);
+              };
+              img.src = readerEvent.target.result;
+            };
+            reader.readAsDataURL(file);
+          } else {
+            pedirTextoYGuardar(j, j.photo);
+          }
+        };
+        fileInput.click();
+      } else {
+        // Si no quiere cambiar la foto, pedimos texto y guardamos de inmediato
+        pedirTextoYGuardar(j, j.photo);
+      }
+    }
+
+    // Auxiliar seguro para pedir textos sin perderlos al usar la cámara
+    function pedirTextoYGuardar(j, fotoFinal) {
       const nuevoNombre = prompt("Nombre del jugador:", j.name);
       if (nuevoNombre === null) return; // Cancelado
 
       const nuevoEquipo = prompt("Equipo (escribe 'Equipo 1' o 'Equipo 2'):", j.team);
       if (nuevoEquipo === null) return;
 
-      // Preguntamos si desea cambiar la foto
-      const cambiarFoto = confirm("¿Quieres tomar/cambiar la foto del jugador?");
-
-      if (!cambiarFoto) {
-        // Guarda los datos directamente si no quiere cambiar la foto
-        guardarCambiosJugador(id, nuevoNombre, nuevoEquipo, j.photo);
-        return;
-      }
-
-      // Si dice que sí, abrimos la cámara/selector
-      const fileInput = document.createElement('input');
-      fileInput.type = 'file';
-      fileInput.accept = 'image/*';
-      fileInput.setAttribute('capture', 'environment');
-
-      fileInput.onchange = e => {
-        const file = e.target.files[0];
-        if (file) {
-          const reader = new FileReader();
-          reader.onload = readerEvent => {
-            const img = new Image();
-            img.onload = () => {
-              // Comprimimos la imagen usando un canvas
-              const canvas = document.createElement('canvas');
-              const MAX_WIDTH = 200; // Ancho máximo idóneo para perfil
-              const scaleFactor = MAX_WIDTH / img.width;
-              canvas.width = MAX_WIDTH;
-              canvas.height = img.height * scaleFactor;
-
-              const ctx = canvas.getContext('2d');
-              ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-              // Imagen liviana JPEG
-              const fotoComprimida = canvas.toDataURL('image/jpeg', 0.7);
-              guardarCambiosJugador(id, nuevoNombre, nuevoEquipo, fotoComprimida);
-            };
-            img.src = readerEvent.target.result;
-          };
-          reader.readAsDataURL(file);
-        } else {
-          // Si abre la cámara pero luego cancela
-          guardarCambiosJugador(id, nuevoNombre, nuevoEquipo, j.photo);
-        }
-      };
-
-      fileInput.click();
+      // Guarda Nombre, Equipo y Foto en un solo paso
+      guardarCambiosJugador(j.id, nuevoNombre, nuevoEquipo, fotoFinal);
     }
 
     async function guardarCambiosJugador(id, nombre, equipo, foto) {
@@ -680,6 +683,8 @@ function toggleAdmin() {
         await cargarDatosSupabase();
       }
     }
+
+ 
     // --- RENDER CALENDARIO ---
     function renderCalendario() {
       const tbody = document.getElementById('tabla-partidos-body');
