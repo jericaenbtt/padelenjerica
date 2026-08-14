@@ -608,7 +608,7 @@ function toggleAdmin() {
         `;
       });
     }
-    // --- FUNCIONES DE EDICIÓN Y BORRADO ---
+// --- FUNCIONES DE EDICIÓN Y BORRADO ---
     function editarJugador(id) {
       const j = jugadoresData.find(item => item.id == id);
       if (!j) return;
@@ -619,45 +619,28 @@ function toggleAdmin() {
       const nuevoEquipo = prompt("Equipo (escribe 'Equipo 1' o 'Equipo 2'):", j.team);
       if (nuevoEquipo === null) return;
 
-      const nuevaFoto = prompt("URL de la foto (o déjalo así):", j.photo || "");
-      if (nuevaFoto === null) return;
+      // Selector invisible para abrir cámara/galería
+      const fileInput = document.createElement('input');
+      fileInput.type = 'file';
+      fileInput.accept = 'image/*';
+      fileInput.setAttribute('capture', 'environment'); 
 
-      guardarCambiosJugador(id, nuevoNombre, nuevoEquipo, nuevaFoto);
-    }
-
-    async function guardarCambiosJugador(id, nombre, equipo, foto) {
-      const { error } = await db
-        .from('jugadores')
-        .update({ name: nombre, team: equipo, photo: foto })
-        .eq('id', id);
-
-      if (error) {
-        alert("Error al actualizar jugador: " + error.message);
-      } else {
-        alert("¡Jugador actualizado correctamente!");
-        await cargarDatosSupabase();
-      }
-    }
-
-    async function borrarJugador(id) {
-      const j = jugadoresData.find(item => item.id == id);
-      const nombre = j ? j.name : "este jugador";
-
-      if (confirm(`¿Estás seguro de que deseas borrar a ${nombre}?`)) {
-        const { error } = await db
-          .from('jugadores')
-          .delete()
-          .eq('id', id);
-
-        if (error) {
-          alert("Error al borrar el jugador: " + error.message);
+      fileInput.onchange = e => {
+        const file = e.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = readerEvent => {
+            const fotoBase64 = readerEvent.target.result;
+            guardarCambiosJugador(id, nuevoNombre, nuevoEquipo, fotoBase64);
+          };
+          reader.readAsDataURL(file);
         } else {
-          alert("Jugador eliminado.");
-          await cargarDatosSupabase();
+          guardarCambiosJugador(id, nuevoNombre, nuevoEquipo, j.photo);
         }
-      }
-    }
+      };
 
+      fileInput.click();
+    }
     // --- RENDER CALENDARIO ---
     function renderCalendario() {
       const tbody = document.getElementById('tabla-partidos-body');
