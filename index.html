@@ -619,27 +619,66 @@ function toggleAdmin() {
       const nuevoEquipo = prompt("Equipo (escribe 'Equipo 1' o 'Equipo 2'):", j.team);
       if (nuevoEquipo === null) return;
 
-      // Selector invisible para abrir cámara/galería
+      // Preguntamos si desea cambiar la foto
+      const cambiarFoto = confirm("¿Quieres tomar/cambiar la foto del jugador?");
+
+      if (!cambiarFoto) {
+        // Guarda los datos directamente si no quiere cambiar la foto
+        guardarCambiosJugador(id, nuevoNombre, nuevoEquipo, j.photo);
+        return;
+      }
+
+      // Si dice que sí, abrimos la cámara/selector
       const fileInput = document.createElement('input');
       fileInput.type = 'file';
       fileInput.accept = 'image/*';
-      fileInput.setAttribute('capture', 'environment'); 
+      fileInput.setAttribute('capture', 'environment');
 
       fileInput.onchange = e => {
         const file = e.target.files[0];
         if (file) {
           const reader = new FileReader();
           reader.onload = readerEvent => {
-            const fotoBase64 = readerEvent.target.result;
-            guardarCambiosJugador(id, nuevoNombre, nuevoEquipo, fotoBase64);
+            const img = new Image();
+            img.onload = () => {
+              // Comprimimos la imagen usando un canvas
+              const canvas = document.createElement('canvas');
+              const MAX_WIDTH = 200; // Ancho máximo idóneo para perfil
+              const scaleFactor = MAX_WIDTH / img.width;
+              canvas.width = MAX_WIDTH;
+              canvas.height = img.height * scaleFactor;
+
+              const ctx = canvas.getContext('2d');
+              ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+              // Imagen liviana JPEG
+              const fotoComprimida = canvas.toDataURL('image/jpeg', 0.7);
+              guardarCambiosJugador(id, nuevoNombre, nuevoEquipo, fotoComprimida);
+            };
+            img.src = readerEvent.target.result;
           };
           reader.readAsDataURL(file);
         } else {
+          // Si abre la cámara pero luego cancela
           guardarCambiosJugador(id, nuevoNombre, nuevoEquipo, j.photo);
         }
       };
 
       fileInput.click();
+    }
+
+    async function guardarCambiosJugador(id, nombre, equipo, foto) {
+      const { error } = await db
+        .from('jugadores')
+        .update({ name: nombre, team: equipo, photo: foto })
+        .eq('id', id);
+
+      if (error) {
+        alert("Error al actualizar jugador: " + error.message);
+      } else {
+        alert("¡Jugador actualizado correctamente!");
+        await cargarDatosSupabase();
+      }
     }
     // --- RENDER CALENDARIO ---
     function renderCalendario() {
