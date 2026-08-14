@@ -994,68 +994,93 @@ const { data, error } = await db.from('partidos').upsert({
 
 
   // --- LÓGICA DE LA MODAL DE FICHA DE JUGADOR ---
-    function verFichaJugador(idJugador) {
-      const j = jugadoresData.find(item => item.id == idJugador);
-      if (!j) return;
+function verFichaJugador(idJugador) {
+  const j = jugadoresData.find(item => item.id == idJugador);
+  if (!j) return;
 
-      // 1. Cargar datos básicos (Foto y Nombre)
-      document.getElementById('mj-foto').src = j.photo || 'https://via.placeholder.com/70?text=Padel';
-      document.getElementById('mj-nombre').innerText = j.name;
+  // 1. Cargar datos básicos (Foto y Nombre)
+  document.getElementById('mj-foto').src = j.photo || 'https://via.placeholder.com/70?text=Padel';
+  document.getElementById('mj-nombre').innerText = j.name;
 
-      // 2. Calcular posición exacta en el ranking de su equipo
-      const ranking = obtenerRankingActual();
-      const listaEquipo = j.team === 'Equipo 1' ? ranking.eq1 : ranking.eq2;
-      const posicion = listaEquipo.findIndex(item => item.id == idJugador) + 1;
-      const totalPuntos = listaEquipo.find(item => item.id == idJugador)?.puntos || 0;
+  // 2. Calcular posición exacta en el ranking de su equipo
+  const ranking = obtenerRankingActual();
+  const listaEquipo = j.team === 'Equipo 1' ? ranking.eq1 : ranking.eq2;
+  const posicion = listaEquipo.findIndex(item => item.id == idJugador) + 1;
+  const totalPuntos = listaEquipo.find(item => item.id == idJugador)?.puntos || 0;
 
-      document.getElementById('mj-equipo-ranking').innerText = `${j.team} — Posición ${posicion}º (${totalPuntos} pts)`;
+  document.getElementById('mj-equipo-ranking').innerText = `${j.team} — Posición ${posicion}º (${totalPuntos} pts)`;
 
-      // 3. Filtrar y rellenar sus partidos de las rondas 1 a 14
-      const tbody = document.getElementById('mj-tabla-body');
-      tbody.innerHTML = '';
+  // 3. Buscar sus 7 partidos en el CUADRANTE_BASE (Rondas 1 a 14)
+  const tbody = document.getElementById('mj-tabla-body');
+  tbody.innerHTML = '';
 
-      const misPartidos = partidosData.filter(p => 
-        p.turno <= 14 && 
-        (p.jugador1_id == idJugador || p.jugador2_id == idJugador || p.jugador3_id == idJugador || p.jugador4_id == idJugador)
-      );
+  let misPartidos = [];
 
-      if (misPartidos.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" style="color:#888;">Sin partidos programados aún</td></tr>';
-      } else {
-        misPartidos.forEach(p => {
-          const esPareja1 = (p.jugador1_id == idJugador || p.jugador2_id == idJugador);
-          
-          let idCompanero = esPareja1 
-            ? (p.jugador1_id == idJugador ? p.jugador2_id : p.jugador1_id)
-            : (p.jugador3_id == idJugador ? p.jugador4_id : p.jugador3_id);
+  // Recorremos las 14 rondas en orden numérico estricto
+  for (let t = 1; t <= 14; t++) {
+    const base = CUADRANTE_BASE.find(c => c.turno === t);
+    if (!base) continue;
 
-          let idRival1 = esPareja1 ? p.jugador3_id : p.jugador1_id;
-          let idRival2 = esPareja1 ? p.jugador4_id : p.jugador2_id;
+    // Verificar si juega en Pista 1 o Pista 2
+    const juegaP1 = base.p1.some(id => id == idJugador);
+    const juegaP2 = base.p2.some(id => id == idJugador);
 
-          const nomComp = obtenerNombreJugador(idCompanero);
-          const nomRiv1 = obtenerNombreJugador(idRival1);
-          const nomRiv2 = obtenerNombreJugador(idRival2);
+    if (juegaP1 || juegaP2) {
+      const pista = juegaP1 ? 1 : 2;
+      const Alineacion = juegaP1 ? base.p1 : base.p2;
 
-          let resTexto = "-";
-          if (p.juegos_pareja1 !== null && p.juegos_pareja2 !== null) {
-            resTexto = esPareja1 ? `${p.juegos_pareja1} - ${p.juegos_pareja2}` : `${p.juegos_pareja2} - ${p.juegos_pareja1}`;
-          }
+      // Determinar si es Pareja 1 (pos 0,1) o Pareja 2 (pos 2,3)
+      const esPareja1 = (Alineacion[0] == idJugador || Alineacion[1] == idJugador);
 
-          tbody.innerHTML += `
-            <tr>
-              <td><b>T${p.turno}</b></td>
-              <td>P${p.pista}</td>
-              <td>${nomComp}</td>
-              <td>${nomRiv1} / ${nomRiv2}</td>
-              <td style="font-weight:bold; color: #1976d2;">${resTexto}</td>
-            </tr>
-          `;
-        });
+      const idCompanero = esPareja1 
+        ? (Alineacion[0] == idJugador ? Alineacion[1] : Alineacion[0])
+        : (Alineacion[2] == idJugador ? Alineacion[3] : Alineacion[2]);
+
+      const idRival1 = esPareja1 ? Alineacion[2] : Alineacion[0];
+      const idRival2 = esPareja1 ? Alineacion[3] : Alineacion[1];
+
+      // Buscar si este partido ya se jugó y tiene resultado en Supabase
+      const partidoBD = partidosData.find(p => p.turno === t && p.pista === pista);
+      let resTexto = "-";
+
+      if (partidoBD && partidoBD.juegos_pareja1 !== null && partidoBD.juegos_pareja2 !== null) {
+        resTexto = esPareja1 
+          ? `${partidoBD.juegos_pareja1} - ${partidoBD.juegos_pareja2}` 
+          : `${partidoBD.juegos_pareja2} - ${partidoBD.juegos_pareja1}`;
       }
 
-      // Mostrar la ventana emergente
-      document.getElementById('modal-jugador').style.display = 'flex';
+      misPartidos.push({
+        turno: t,
+        pista: pista,
+        companero: obtenerNombreJugador(idCompanero),
+        rivales: `${obtenerNombreJugador(idRival1)} / ${obtenerNombreJugador(idRival2)}`,
+        resultado: resTexto
+      });
     }
+  }
+
+  // Aseguramos el orden T1 -> T2 -> T3...
+  misPartidos.sort((a, b) => a.turno - b.turno);
+
+  if (misPartidos.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="5" style="color:#888;">Sin partidos programados aún</td></tr>';
+  } else {
+    misPartidos.forEach(p => {
+      tbody.innerHTML += `
+        <tr>
+          <td><b>T${p.turno}</b></td>
+          <td>P${p.pista}</td>
+          <td>${p.companero}</td>
+          <td>${p.rivales}</td>
+          <td style="font-weight:bold; color: #1976d2;">${p.resultado}</td>
+        </tr>
+      `;
+    });
+  }
+
+  // Mostrar la ventana emergente
+  document.getElementById('modal-jugador').style.display = 'flex';
+}
 
     function cerrarModalJugador() {
       document.getElementById('modal-jugador').style.display = 'none';
