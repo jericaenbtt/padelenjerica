@@ -503,12 +503,12 @@ header {
       <h2>Clasificación Principal por Equipos</h2>
       <div class="equipo-resumen">
         <div class="equipo-box eq1">
-          <h3>Equipo 1</h3>
+          <h3>Equipo blanco y negro</h3>
           <div class="puntos" id="puntos-eq1">0</div>
           <small>Juegos Totales</small>
         </div>
         <div class="equipo-box eq2">
-          <h3>Equipo 2</h3>
+          <h3>Equipo color</h3>
           <div class="puntos" id="puntos-eq2">0</div>
           <small>Juegos Totales</small>
         </div>
@@ -687,7 +687,7 @@ function toggleAdmin() {
 
       jugadoresData.forEach(j => {
         const eqClass = j.team === 'Equipo 1' ? 'equipo1' : 'equipo2';
-        const photoSrc = j.photo || 'https://via.placeholder.com/70?text=Padel';
+       const photoSrc = j.photo || 'https://via.placeholder.com/70?text=Padel';
         
         // Creamos los botones de admin si está logueado
         let botonesAdmin = '';
@@ -700,11 +700,14 @@ function toggleAdmin() {
           `;
         }
 
+        // Nombre visual del equipo
+        const nombreEquipoVisual = j.team === 'Equipo 1' ? 'Equipo Blanco y Negro' : 'Equipo Color';
+
         container.innerHTML += `
           <div class="jugador-card ${eqClass}" style="position: relative; cursor: pointer;" onclick="verFichaJugador('${j.id}')">
             <img src="${photoSrc}" class="jugador-img" alt="${j.name}">
             <div class="jugador-nombre">${j.name}</div>
-            <div class="jugador-equipo">${j.team}</div>
+            <div class="jugador-equipo">${nombreEquipoVisual}</div>
             ${botonesAdmin}
           </div>
         `;
