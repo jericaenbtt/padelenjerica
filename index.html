@@ -913,24 +913,27 @@ function toggleAdmin() {
       document.getElementById('puntos-eq2').innerText = puntosEquipo2;
 
       // Ranking Individual
-      const rBody = document.getElementById('ranking-body');
-      rBody.innerHTML = '';
+// Ranking Individual
+const rBody = document.getElementById('ranking-body');
+rBody.innerHTML = '';
 
-      ranking.todos.forEach((j, index) => {
-        rBody.innerHTML += `
-          <tr>
-            <td class="posicion">${index + 1}º</td>
-            <td>
-              <div style="display:flex; align-items:center; gap:8px;">
-                <img src="${j.photo || 'https://via.placeholder.com/25'}" style="width:25px; height:25px; border-radius:50%; object-fit:cover;">
-                <strong>${j.name}</strong>
-              </div>
-            </td>
-            <td><small>${j.team}</small></td>
-            <td><strong>${j.puntos}</strong></td>
-          </tr>
-        `;
-      });
+ranking.todos.forEach((j, index) => {
+  const nombreEquipoVisual = j.team === 'Equipo 1' ? 'Equipo Blanco y Negro' : 'Equipo Color';
+
+  rBody.innerHTML += `
+    <tr>
+      <td class="posicion">${index + 1}º</td>
+      <td>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <img src="${j.photo || 'https://via.placeholder.com/25'}" style="width:25px; height:25px; border-radius:50%; object-fit:cover;">
+          <strong>${j.name}</strong>
+        </div>
+      </td>
+      <td><small>${nombreEquipoVisual}</small></td>
+      <td><strong>${j.puntos}</strong></td>
+    </tr>
+  `;
+});
     }
 
     // --- GESTIÓN DE RESULTADOS (ADMIN) ---
