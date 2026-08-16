@@ -268,15 +268,28 @@ header {
       box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     }
 
-    .equipo-box.eq1 {
-      background-color: var(--team1-bg);
-      border: 2px solid var(--team1-border);
-    }
+/* Equipo 1: Estilo Blanco y Negro */
+.equipo-box.eq1 { 
+  background: #ffffff; /* Fondo blanco */
+  color: #000000; /* Texto en negro */
+  border: 3px solid #000000; /* Borde negro marcado */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
 
-    .equipo-box.eq2 {
-      background-color: var(--team2-bg);
-      border: 2px solid var(--team2-border);
-    }
+/* Equipo 2: Estilo Tricolor (Rojo, Azul y Verde) */
+.equipo-box.eq2 { 
+  /* Gradiente tricolor elegante inclinado */
+  background: linear-gradient(135deg, #ef4444 0%, #3b82f6 50%, #10b981 100%); 
+  color: #ffffff; /* Texto en blanco para asegurar visibilidad */
+  border: 2px solid #ffffff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Opcional: Para asegurar que los textos sobre el degradado se lean perfecto */
+.equipo-box.eq2 h3, 
+.equipo-box.eq2 .puntos {
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.6);
+}
 
     .equipo-box h3 {
       font-size: 1rem;
