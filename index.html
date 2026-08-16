@@ -1025,7 +1025,8 @@ function verFichaJugador(idJugador) {
   const posicion = listaEquipo.findIndex(item => item.id == idJugador) + 1;
   const totalPuntos = listaEquipo.find(item => item.id == idJugador)?.puntos || 0;
 
-  document.getElementById('mj-equipo-ranking').innerText = `${j.team} — Posición ${posicion}º (${totalPuntos} pts)`;
+const nombreEquipoVisual = j.team === 'Equipo 1' ? 'Equipo Blanco y Negro' : 'Equipo Color';
+document.getElementById('mj-equipo-ranking').innerText = `${nombreEquipoVisual} — Posición ${posicion}º (${totalPuntos} pts)`;
 
   // 3. Buscar sus 7 partidos en el CUADRANTE_BASE (Rondas 1 a 14)
   const tbody = document.getElementById('mj-tabla-body');
