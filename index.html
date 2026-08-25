@@ -1051,14 +1051,18 @@ document.getElementById('mj-equipo-ranking').innerText = `${nombreEquipoVisual} 
       const Alineacion = juegaP1 ? base.p1 : base.p2;
 
       // Determinar si es Pareja 1 (pos 0,1) o Pareja 2 (pos 2,3)
-      const esPareja1 = (Alineacion[0] == idJugador || Alineacion[1] == idJugador);
+      // --- DESPUÉS (CORREGIDO) ---
+// Alineacion tiene 4 IDs: [Pareja1_A, Pareja1_B, Pareja2_A, Pareja2_B]
+const esPareja1 = (Alineacion[0] == idJugador || Alineacion[1] == idJugador);
 
-      const idCompanero = esPareja1 
-        ? (Alineacion[0] == idJugador ? Alineacion[1] : Alineacion[0])
-        : (Alineacion[2] == idJugador ? Alineacion[3] : Alineacion[2]);
+// Si es Pareja 1, los rivales son los índices 2 y 3. Si es Pareja 2, los rivales son los índices 0 y 1.
+const idCompanero = esPareja1 
+  ? (Alineacion[0] == idJugador ? Alineacion[1] : Alineacion[0])
+  : (Alineacion[2] == idJugador ? Alineacion[3] : Alineacion[2]);
 
-      const idRival1 = esPareja1 ? Alineacion[2] : Alineacion[0];
-      const idRival2 = esPareja1 ? Alineacion[3] : Alineacion[1];
+const rivalesIds = esPareja1 ? [Alineacion[2], Alineacion[3]] : [Alineacion[0], Alineacion[1]];
+const idRival1 = rivalesIds[0];
+const idRival2 = rivalesIds[1];
 
       // Buscar si este partido ya se jugó y tiene resultado en Supabase
       const partidoBD = partidosData.find(p => p.turno === t && p.pista === pista);
