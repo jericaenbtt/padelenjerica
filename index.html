@@ -606,21 +606,35 @@ header {
 // --- CUADRANTE BASE DEFINTIVO (0 REPETICIONES DE COMPAÑERO + MÁX 2 RIVALES) ---
 // --- CUADRANTE BASE DEFINITIVO (0 REPETICIONES DE COMPAÑERO Y MÁX 2 RIVALES) ---
 // --- CUADRANTE BASE MATEMÁTICAMENTE VERIFICADO POR ALGORITMO ---
+// --- CUADRANTE BASE DEFINITIVO Y EQUILIBRADO (7 RONDAS / 14 TURNOS) ---
 const CUADRANTE_BASE = [
-  { turno: 1,  p1: [5,6,13,14], p2: [7,8,15,16] },
-  { turno: 2,  p1: [1,2,9,10],  p2: [3,4,11,12] },
-  { turno: 3,  p1: [1,3,13,15], p2: [2,4,14,16] },
-  { turno: 4,  p1: [5,7,9,11],  p2: [6,8,10,12] },
-  { turno: 5,  p1: [1,4,12,16], p2: [2,3,11,15] },
-  { turno: 6,  p1: [5,8,10,14], p2: [6,7,9,13]  },
-  { turno: 7,  p1: [1,5,10,15], p2: [2,6,12,13] },
-  { turno: 8,  p1: [3,7,9,14],  p2: [4,8,11,16] },
-  { turno: 9,  p1: [1,6,11,14], p2: [2,7,10,16] },
-  { turno: 10, p1: [3,8,13,15], p2: [4,5,9,12]  },
-  { turno: 11, p1: [1,7,9,16],  p2: [3,5,10,11] },
-  { turno: 12, p1: [2,8,12,15], p2: [4,6,13,14] },
-  { turno: 13, p1: [1,8,13,16], p2: [2,5,9,15]  },
-  { turno: 14, p1: [3,6,10,12], p2: [4,7,11,14] }
+  // Ronda 1
+  { turno: 1,  p1: [1,2,9,10],   p2: [3,4,11,12] },
+  { turno: 2,  p1: [5,6,13,14],  p2: [7,8,15,16] },
+
+  // Ronda 2
+  { turno: 3,  p1: [1,3,9,11],   p2: [2,4,10,12] },
+  { turno: 4,  p1: [5,7,13,15],  p2: [6,8,14,16] },
+
+  // Ronda 3
+  { turno: 5,  p1: [1,4,9,12],   p2: [2,3,10,11] },
+  { turno: 6,  p1: [5,8,13,16],  p2: [6,7,14,15] },
+
+  // Ronda 4
+  { turno: 7,  p1: [1,5,10,14],  p2: [2,6,9,13]  },
+  { turno: 8,  p1: [3,7,12,16],  p2: [4,8,11,15] },
+
+  // Ronda 5
+  { turno: 9,  p1: [1,6,11,16],  p2: [2,5,12,15] },
+  { turno: 10, p1: [3,8,9,14],   p2: [4,7,10,13] },
+
+  // Ronda 6
+  { turno: 11, p1: [1,7,11,13],  p2: [2,8,12,14] },
+  { turno: 12, p1: [3,5,9,15],   p2: [4,6,10,16] },
+
+  // Ronda 7
+  { turno: 13, p1: [1,8,10,15],  p2: [2,7,9,16]  },
+  { turno: 14, p1: [3,6,12,13],  p2: [4,5,11,14] }
 ];
 
     // --- INICIALIZACIÓN ---
